@@ -20,7 +20,7 @@ class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod
 
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Ballchaserlog";
+	std::string menuTitle_ = "Ballchasing.com - Log";
 
 	virtual void Render() override;
 	virtual std::string GetMenuName() override;
