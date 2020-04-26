@@ -14,21 +14,41 @@ void Ballchaserlog::Render()
 	//ImGui::ShowDemoWindow();
 
 	ImGui::Columns(2);
-
+	static bool replayListCollapsed = false;
+	static float uncollapseWidth = 0;
 	static std::string detailID = "";
-	ImGui::BeginChild("ReplayList");
-	for (auto& replay : api->lastMatchesResult)
+	if (!replayListCollapsed)
 	{
-		if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+		ImGui::Text("Your latest replays"); ImGui::SameLine(ImGui::GetColumnWidth(0) - 25);
+		if (ImGui::ArrowButton(">>", ImGuiDir_Left)) {
+			replayListCollapsed = true;
+			uncollapseWidth = ImGui::GetColumnWidth(0);
+			ImGui::SetColumnWidth(0, 20);
+		}
+	}
+	else {
+		if (ImGui::ArrowButton(">>", ImGuiDir_Right)) {
+			replayListCollapsed = false;
+			ImGui::SetColumnWidth(0, uncollapseWidth);
+		}
+	}
+	ImGui::BeginChild("ReplayList");
+
+	if (!replayListCollapsed){
+		for (auto& replay : api->lastMatchesResult)
 		{
-			cvarManager->log("selected detail");
-			detailID = replay.id;
+			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+			{
+				cvarManager->log("selected detail");
+				detailID = replay.id;
+			}
 		}
 	}
 	ImGui::EndChild();
 	ImGui::NextColumn();
 	if (!detailID.empty())
 	{
+		ImGui::Text("Righ click any tab to configure which stats is shown - drag to reorder");
 		auto replayDetail = api->GetCachedDetail(detailID);
 		RenderReplayDetail(&replayDetail);
 	}
