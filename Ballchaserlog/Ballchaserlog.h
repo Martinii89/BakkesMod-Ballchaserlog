@@ -3,6 +3,7 @@
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "ballchasing/BallchasingAPI.h"
+#include "GUISettings.h"
 
 constexpr auto plugin_version = "1.0";
 
@@ -21,6 +22,7 @@ class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
 	std::string menuTitle_ = "Ballchasing.com - Log";
+	GUISettings guiSettings;
 
 	virtual void Render() override;
 	virtual std::string GetMenuName() override;
@@ -32,6 +34,11 @@ class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod
 	virtual void OnClose() override;
 
 	void RenderReplayDetail(GetReplayResponseData* detail);
+
+	void CoreStatsContextMenu();
+	void ContextMenu(std::vector<TableColumn>& columnData);
+	void RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool blueHeader = true, bool orangeHeader = true );
+	void RenderTeamTable(Team& t, TableSettings& settings, bool drawHeader = true);
 	
 	
 };

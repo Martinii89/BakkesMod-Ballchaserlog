@@ -84,6 +84,9 @@
     <ClCompile Include="ballchasing\APIDataClasses.cpp">
       <Filter>ballchasing</Filter>
     </ClCompile>
+    <ClCompile Include="GUISettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ballchaserlog.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="ballchasing\APIDataClasses.h">
       <Filter>ballchasing</Filter>
+    </ClInclude>
+    <ClInclude Include="GUISettings.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

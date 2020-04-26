@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="ballchasing\APIDataClasses.cpp" />
     <ClCompile Include="ballchasing\BallchasingAPI.cpp" />
+    <ClCompile Include="GUISettings.cpp" />
     <ClCompile Include="http\httplib.cc" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imguivariouscontrols.cpp" />
@@ -119,6 +120,7 @@
   <ItemGroup>
     <ClInclude Include="ballchasing\APIDataClasses.h" />
     <ClInclude Include="ballchasing\BallchasingAPI.h" />
+    <ClInclude Include="GUISettings.h" />
     <ClInclude Include="http\httplib.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />

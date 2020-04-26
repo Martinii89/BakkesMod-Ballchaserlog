@@ -39,10 +39,15 @@ void BallchasingAPI::GetLastMatches()
 		if (res && res->status == 200)
 		{
 			json j = json::parse(res->body);
-			auto getReplays = j.get<GetReplaysResponse>();
-			cvar_->log("Got replays: " + std::to_string(getReplays.count));
-			cvar_->log("Got replaysList: " + std::to_string(getReplays.replays.size()));
-			OnLastMatches(getReplays);
+			try {
+				auto getReplays = j.get<GetReplaysResponse>();
+				cvar_->log("Got replays: " + std::to_string(getReplays.count));
+				cvar_->log("Got replaysList: " + std::to_string(getReplays.replays.size()));
+				OnLastMatches(getReplays);
+			}
+			catch (const std::exception & e) {
+				cvar_->log(e.what());
+			}
 		}
 		else {
 			cvar_->log("GetLastMatches result was null");
@@ -95,8 +100,26 @@ void BallchasingAPI::GetReplayDetails(std::string id)
 		if (res && res->status == 200)
 		{
 			json j = json::parse(res->body);
-			auto replayDetails = j.get<GetReplayResponseData>();
-			OnReplayDetails(replayDetails);
+			std::string status = j["status"].get<std::string>();
+			if (status == "ok") {
+
+				try {
+					auto replayDetails = j.get<GetReplayResponseData>();
+					OnReplayDetails(replayDetails);
+				}
+				catch (const std::exception & e) {
+					cvar_->log(e.what());
+				}	
+			}
+			else if (status == "pending")
+			{
+				//retry
+				
+				GetReplayDetails(id);
+			}
+			else {
+				//Failed replay. fail silenty for now
+			}
 		}
 		else {
 			cvar_->log("GetReplayDetails result was null");

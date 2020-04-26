@@ -1,5 +1,8 @@
 #pragma once
 
+
+// Find the required libs here: https://slproweb.com/products/Win32OpenSSL.html
+// Win64 OpenSSL v1.1.1g
 #pragma comment(lib, "libssl64MT.lib")
 #pragma comment(lib, "libcrypto64MT.lib")
 #pragma comment(lib, "CRYPT32.lib")

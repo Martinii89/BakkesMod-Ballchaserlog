@@ -131,6 +131,7 @@ struct GetReplayResponseData
 {
 	std::string replay_title;
 	std::string id;
+	std::string status;
 
 	Team blue;
 	Team orange;

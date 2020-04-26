@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Ballchaserlog.h"
-
+#include "IMGUI/imgui_internal.h"
 
 // Do ImGui rendering here
 void Ballchaserlog::Render()
@@ -11,6 +11,7 @@ void Ballchaserlog::Render()
 		ImGui::End();
 		return;
 	}
+	//ImGui::ShowDemoWindow();
 
 	ImGui::Columns(2);
 
@@ -107,87 +108,83 @@ void DrawTeamOverviewStats(Team& team)
 	}
 }
 
-void DrawTeamCoreStats(Team& team)
-{
-	int cols = ImGui::GetColumnsCount();
-	ImGui::Columns(9);
-	ImGui::Text(""); ImGui::NextColumn();
-	ImGui::Text("SCORE"); ImGui::NextColumn();
-	ImGui::Text("SHOTS"); ImGui::NextColumn();
-	ImGui::Text("GOALS"); ImGui::NextColumn();
-	ImGui::Text("SHOOT%"); ImGui::NextColumn();
-	ImGui::Text("ASSISTS"); ImGui::NextColumn();
-	ImGui::Text("SAVES"); ImGui::NextColumn();
-	ImGui::Text("DEMOS"); ImGui::NextColumn();
-	ImGui::Text("DEMOS TAKEN"); ImGui::NextColumn();
-	ImGui::Separator();
 
-	for (auto& p : team.players) {
-		ImGui::Text("%s", p.name); ImGui::NextColumn();
-		ImGui::Text("%i", p.score); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.shots); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.goals); ImGui::NextColumn();
-		ImGui::Text("%.1f", p.stats.core.shooting_percentage); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.assists); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.saves); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.demo.inflicted); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.demo.taken); ImGui::NextColumn();
-	}
-
-	ImGui::Columns(cols);
-}
 
 void Ballchaserlog::RenderReplayDetail(GetReplayResponseData* detail)
 {
 	if (ImGui::BeginTabBar("#"))
 	{
-		if (ImGui::BeginTabItem("Overview"))
-		{
-			ImGui::BeginChild("OverviewTab");
-			int cols = ImGui::GetColumnsCount();
-			ImGui::Columns(7);
-			DrawTeamOverviewStats(detail->blue);
-			ImGui::Separator();
-			DrawTeamOverviewStats(detail->orange);
-			ImGui::Columns(cols);
-
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Core"))
-		{
-			ImGui::BeginChild("CoreTab");
-			DrawTeamCoreStats(detail->blue);
-			ImGui::Separator();
-			DrawTeamCoreStats(detail->orange);
-
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Boost"))
-		{
-			ImGui::BeginChild("BoostTab");
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Movement"))
-		{
-			ImGui::BeginChild("MovementTab");
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Positioning"))
-		{
-			ImGui::BeginChild("PositioningTab");
-			ImGui::EndChild();
-			ImGui::EndTabItem();
-		}
+		RenderTableTab("Overview", guiSettings.overviewTableConfig, detail);
+		RenderTableTab("Core", guiSettings.coreTableConfig, detail);
+		RenderTableTab("Boost", guiSettings.boostTableConfig, detail);
+		RenderTableTab("Movement", guiSettings.movementTableConfig, detail);
+		RenderTableTab("Positioning", guiSettings.positioningTableConfig, detail);
 
 		ImGui::EndTabBar();
 	}
+
 }
+
+
+void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
+{
+	if (ImGui::BeginPopupContextItem())
+	{
+		static bool dragging = false;
+		for (size_t i = 0; i < columnData.size(); i++)
+		{
+			auto& col = columnData[i];
+			if (ImGui::Selectable(col.name.c_str(), &col.visible, ImGuiSelectableFlags_DontClosePopups))
+			{
+				if (dragging) col.visible = !col.visible;
+				dragging = false;
+			}
+			if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
+			{
+				dragging = true;
+				int i_next = i + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
+				if (i_next >= 0 && i_next < columnData.size())
+				{
+					std::swap(columnData[i], columnData[i_next]);
+					ImGui::ResetMouseDragDelta();
+				}
+			}
+		}
+		ImGui::EndPopup();
+	}
+}
+void Ballchaserlog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
+{
+	bool tabOpen = ImGui::BeginTabItem(name.c_str());
+	ContextMenu(settings.Columns);
+	if (tabOpen)
+	{
+		ImGui::BeginChild((name + "tab").c_str());
+		RenderTeamTable(detail->blue, settings, bBlueHeader);
+		ImGui::Separator();
+		RenderTeamTable(detail->orange, settings, bOrangeHeader);
+
+		ImGui::EndChild();
+		ImGui::EndTabItem();
+	}
+}
+
+void Ballchaserlog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
+{
+	int cols = ImGui::GetColumnsCount();
+	ImGui::Columns(settings.GetColumnCount());
+	for (auto& col : settings.Columns) {
+		col.RenderHeader(team);
+	}
+	ImGui::Separator();
+
+	for (auto& p : team.players) {
+		for (auto col : settings.Columns) {
+			col.RenderCell(p);
+		}
+	}
+	ImGui::Columns(cols);
+}
+
+
 

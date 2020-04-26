@@ -12,6 +12,7 @@ using json = nlohmann::json;
 void from_json(const json& j, GetReplayResponseData& p) {
 	JOPTIONAL(replay_title);
 	JOPTIONAL2(title, replay_title);
+	JOPTIONAL(status);
 	J(id);
 	J(blue);
 	J(orange);
