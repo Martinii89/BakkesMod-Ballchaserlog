@@ -35,7 +35,7 @@ struct GUISettings {
 
 	TableSettings overviewTableConfig{ {
 		{"Team Goals",			[](Team::Player& p) {ImGui::Text(""); }, [](Team& t) {ImGui::Text("%i", t.goals); }, true},
-		{"Player names",		[](Team::Player& p) {ImGui::Text("%s", p.name); }, [](Team& t) {ImGui::Text("%s", t.name); }, true},
+		{"Player names",		[](Team::Player& p) {ImGui::Text("%s", p.name.c_str()); }, [](Team& t) {ImGui::Text("%s", t.name.c_str()); }, true},
 		{"Score",				[](Team::Player& p) {ImGui::Text("%i", p.stats.core.score); }, true},
 		{"Goals",				[](Team::Player& p) {ImGui::Text("%i", p.stats.core.goals); }, true},
 		{"Assists",				[](Team::Player& p) {ImGui::Text("%i", p.stats.core.assists); }, true},
@@ -44,7 +44,7 @@ struct GUISettings {
 		}};
 
 	TableSettings coreTableConfig{ {
-		{"Player Name",			[](Team::Player& p) {ImGui::Text("%s", p.name); }, true},
+		{"Player Name",			[](Team::Player& p) {ImGui::Text("%s", p.name.c_str()); }, true},
 		{"Score",				[](Team::Player& p) {ImGui::Text("%i",   p.stats.core.score); }, true},
 		{"Goals",				[](Team::Player& p) {ImGui::Text("%i",   p.stats.core.goals); }, true},
 		{"Assists",				[](Team::Player& p) {ImGui::Text("%i",   p.stats.core.assists); }, true},
@@ -59,7 +59,7 @@ struct GUISettings {
 		} };
 
 	TableSettings boostTableConfig{ {
-		{"Player Name",					[](Team::Player& p) {ImGui::Text("%s",   p.name); }, true},
+		{"Player Name",					[](Team::Player& p) {ImGui::Text("%s",   p.name.c_str()); }, true},
 		{"BPM",							[](Team::Player& p) {ImGui::Text("%i",   p.stats.boost.bpm); }, true},
 		{"BCPM",						[](Team::Player& p) {ImGui::Text("%.1f", p.stats.boost.bcpm); }, false},
 		{"Avg Boost",					[](Team::Player& p) {ImGui::Text("%.1f", p.stats.boost.avg_amount); }, true},
@@ -91,12 +91,12 @@ struct GUISettings {
 	} };
 
 	TableSettings movementTableConfig{ {
-		{"Player Name",				[](Team::Player& p) {ImGui::Text("%s", p.name); }, true},
+		{"Player Name",				[](Team::Player& p) {ImGui::Text("%s", p.name.c_str()); }, true},
 		{"Avg speed",				[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.avg_speed); }, true},
 		{"Distance",			[](Team::Player& p) {ImGui::Text("%i", p.stats.movement.total_distance); }, false},
 		{"Time Supersonic",	[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_supersonic_speed); }, true},
-		{"Time boosting",		[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_boost_speed); }, true},
-		{"Time slow",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_slow_speed); }, true},
+		{"Time boost speed",		[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_boost_speed); }, true},
+		{"Time slow speed",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_slow_speed); }, true},
 		{"Time ground",				[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_ground); }, true},
 		{"Time low air",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_low_air); }, true},
 		{"Time high air",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.time_high_air); }, true},
@@ -105,7 +105,7 @@ struct GUISettings {
 		{"Avg powerslide duration",	[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.avg_powerslide_duration); }, false},
 		{"Avg speed%",	[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.avg_speed_percentage); }, false},
 		{"%%slow",		[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_slow_speed); }, false},
-		{"%%boosting",		[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_boost_speed); }, false},
+		{"%%boost speed",		[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_boost_speed); }, false},
 		{"%%supersonic",[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_supersonic_speed); }, false},
 		{"%%ground",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_ground); }, false},
 		{"%%low air",			[](Team::Player& p) {ImGui::Text("%.1f", p.stats.movement.percent_low_air); }, false},
@@ -113,7 +113,7 @@ struct GUISettings {
 	} };
 
 	TableSettings positioningTableConfig{ {
-		{"Player Name",							[](Team::Player& p) {ImGui::Text("%s",   p.name); }, true},
+		{"Player Name",							[](Team::Player& p) {ImGui::Text("%s",   p.name.c_str()); }, true},
 		{"Avg dist to ball",				[](Team::Player& p) {ImGui::Text("%i",   p.stats.positioning.avg_distance_to_ball); }, true},
 		{"avg_distance_to_ball_possession",		[](Team::Player& p) {ImGui::Text("%i",   p.stats.positioning.avg_distance_to_ball_possession); }, false},
 		{"avg_distance_to_ball_no_possession",	[](Team::Player& p) {ImGui::Text("%i",   p.stats.positioning.avg_distance_to_ball_no_possession); }, false},
