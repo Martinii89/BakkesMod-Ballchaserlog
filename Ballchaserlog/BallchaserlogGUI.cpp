@@ -131,7 +131,8 @@ void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
 	if (ImGui::BeginPopupContextItem())
 	{
 		static bool dragging = false;
-		for (size_t i = 0; i < columnData.size(); i++)
+		// No hiding of the first column (mainly just to be lazy and not worry about all cols beeing hidden)
+		for (size_t i = 1; i < columnData.size(); i++)
 		{
 			auto& col = columnData[i];
 			if (ImGui::Selectable(col.name.c_str(), &col.visible, ImGuiSelectableFlags_DontClosePopups))
