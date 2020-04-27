@@ -1,0 +1,2 @@
+Ballchasing log plugin
+0|Open Ballchasing Log|plugin load Ballchasing; writeplugins; togglemenu Ballchasing
