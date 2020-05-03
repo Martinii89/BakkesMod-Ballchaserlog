@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Ballchaserlog.h"
+#include "Ballchasinglog.h"
 #include "IMGUI/imgui_internal.h"
 
 
@@ -19,7 +19,7 @@ std::string joinPlayers(Team t)
 }
 
 // Do ImGui rendering here
-void Ballchaserlog::Render()
+void Ballchasinglog::Render()
 {
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
@@ -87,44 +87,44 @@ void Ballchaserlog::Render()
 }
 
 // Name of the menu that is used to toggle the window.
-std::string Ballchaserlog::GetMenuName()
+std::string Ballchasinglog::GetMenuName()
 {
 	return "Ballchasing";
 }
 
 // Title to give the menu
-std::string Ballchaserlog::GetMenuTitle()
+std::string Ballchasinglog::GetMenuTitle()
 {
 	return menuTitle_;
 }
 
 // Don't call this yourself, BM will call this function with a pointer to the current ImGui context
-void Ballchaserlog::SetImGuiContext(uintptr_t ctx)
+void Ballchasinglog::SetImGuiContext(uintptr_t ctx)
 {
 	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
 }
 
 // Should events such as mouse clicks/key inputs be blocked so they won't reach the game
-bool Ballchaserlog::ShouldBlockInput()
+bool Ballchasinglog::ShouldBlockInput()
 {
 	return ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard;
 }
 
 // Return true if window should be interactive
-bool Ballchaserlog::IsActiveOverlay()
+bool Ballchasinglog::IsActiveOverlay()
 {
 	return true;
 }
 
 // Called when window is opened
-void Ballchaserlog::OnOpen()
+void Ballchasinglog::OnOpen()
 {
 	isWindowOpen_ = true;
 	api->GetLastMatches();
 }
 
 // Called when window is closed
-void Ballchaserlog::OnClose()
+void Ballchasinglog::OnClose()
 {
 	isWindowOpen_ = false;
 }
@@ -154,7 +154,7 @@ void DrawTeamOverviewStats(Team& team)
 
 
 
-void Ballchaserlog::RenderReplayDetail(GetReplayResponseData* detail)
+void Ballchasinglog::RenderReplayDetail(GetReplayResponseData* detail)
 {
 	if (ImGui::BeginTabBar("#"))
 	{
@@ -170,7 +170,7 @@ void Ballchaserlog::RenderReplayDetail(GetReplayResponseData* detail)
 }
 
 
-void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
+void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 {
 	if (ImGui::BeginPopupContextItem())
 	{
@@ -198,7 +198,7 @@ void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
 		ImGui::EndPopup();
 	}
 }
-void Ballchaserlog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
+void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
 {
 	bool tabOpen = ImGui::BeginTabItem(name.c_str());
 	ContextMenu(settings.Columns);
@@ -214,7 +214,7 @@ void Ballchaserlog::RenderTableTab(std::string name, TableSettings& settings, Ge
 	}
 }
 
-void Ballchaserlog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
+void Ballchasinglog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
 {
 	int cols = ImGui::GetColumnsCount();
 	ImGui::Columns(settings.GetColumnCount());

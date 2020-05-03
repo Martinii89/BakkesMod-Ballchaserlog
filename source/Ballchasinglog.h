@@ -7,7 +7,7 @@
 
 constexpr auto plugin_version = "1.0";
 
-class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
+class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
 
 	//Boilerplate

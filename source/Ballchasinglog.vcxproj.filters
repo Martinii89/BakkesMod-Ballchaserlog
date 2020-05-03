@@ -33,7 +33,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ballchaserlog.cpp">
+    <ClCompile Include="Ballchasinglog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -72,7 +72,7 @@
     <ClCompile Include="imgui\imguivariouscontrols.cpp">
       <Filter>imgui\implementation</Filter>
     </ClCompile>
-    <ClCompile Include="BallchaserlogGUI.cpp">
+    <ClCompile Include="BallchasinglogGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="http\httplib.cc">
@@ -89,7 +89,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ballchaserlog.h">
+    <ClInclude Include="Ballchasinglog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
