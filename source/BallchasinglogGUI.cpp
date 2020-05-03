@@ -89,7 +89,7 @@ void Ballchasinglog::Render()
 // Name of the menu that is used to toggle the window.
 std::string Ballchasinglog::GetMenuName()
 {
-	return "Ballchasing";
+	return "ballchasing";
 }
 
 // Title to give the menu
