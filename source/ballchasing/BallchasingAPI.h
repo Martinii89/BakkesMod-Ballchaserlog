@@ -18,7 +18,8 @@ public:
 
 	GetReplayResponseData GetCachedDetail(std::string id);
 
-
+	void GetToplevelGroups();
+	void GetGroupStats();
 
 private:
 	std::map<std::string, GetReplayResponseData> detailsCache_;

@@ -55,7 +55,7 @@ struct GUISettings {
 		{"Shooting%",				[](Team::Player& p) {ImGui::Text("%.1f%%", p.stats.core.shooting_percentage);}, true},
 		{"Demos inflicted",			[](Team::Player& p) {ImGui::Text("%i",   p.stats.demo.inflicted); }, true},
 		{"Demos taken",				[](Team::Player& p) {ImGui::Text("%i",   p.stats.demo.taken); },			  true},
-		{"MVP",						[](Team::Player& p) {ImGui::Text(p.stats.core.mvp ? "Yes" : "No"); },         false},
+		{"MVP",						[](Team::Player& p) {ImGui::Text(p.stats.core.mvp > 0 ? "Yes" : "No"); },         false},
 		} };
 
 	TableSettings boostTableConfig{ {

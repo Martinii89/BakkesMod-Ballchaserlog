@@ -11,7 +11,7 @@ struct CoreStats {
 	int saves = 0;
 	int assists = 0;
 	int score = 0;
-	bool mvp = false;
+	int mvp = 0;
 	float shooting_percentage = 0;
 };
 
@@ -137,6 +137,38 @@ struct GetReplayResponseData
 	Team orange;
 };
 
+struct CumulativePlayerStats : PlayerStats
+{
+	int		games;
+	int		wins;
+	float	win_percentage;
+	int		play_duration;
+};
+
+
+struct GroupPlayer
+{
+	std::string platform;
+	std::string id;
+	std::string name;
+	std::string team;
+	CumulativePlayerStats cumulative;
+	PlayerStats game_average;
+
+};
+
+
+struct GroupData
+{
+	std::string id;
+	std::string name;
+	std::string created;
+	std::string status;
+	bool shared;
+
+	std::vector<GroupPlayer> players;
+};
+
 struct GetReplaysResponse
 {
 	int count;
@@ -158,3 +190,8 @@ void from_json(const nlohmann::json& j, BoostStats& p);
 void from_json(const nlohmann::json& j, MovementStats& p);
 void from_json(const nlohmann::json& j, PositioningStats& p);
 void from_json(const nlohmann::json& j, DemoStats& p);
+
+void from_json(const nlohmann::json& j, GroupData& p);
+void from_json(const nlohmann::json& j, GroupPlayer& p);
+void from_json(const nlohmann::json& j, CumulativePlayerStats& p);
+

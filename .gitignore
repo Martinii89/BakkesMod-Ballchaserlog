@@ -339,3 +339,4 @@ MigrationBackup/
 *.exp
 /plugins/Ballchaserlog.dll
 /plugins/Ballchaserlog.lib
+/ss.png

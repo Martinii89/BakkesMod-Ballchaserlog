@@ -4,6 +4,7 @@
 using json = nlohmann::json;
 #include "BallchasingAPI.h"
 #include "APIDataClasses.h"
+#include <chrono>
 
 BallchasingAPI::BallchasingAPI(std::shared_ptr<CVarManagerWrapper> cvar, std::shared_ptr<GameWrapper> gw): cli("ballchasing.com"), cvar_(cvar), gw_(gw)
 {
@@ -42,9 +43,11 @@ void BallchasingAPI::GetLastMatches()
 		{
 			json j = json::parse(res->body);
 			try {
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 				auto getReplays = j.get<GetReplaysResponse>();
-				cvar_->log("Got replays: " + std::to_string(getReplays.count));
-				cvar_->log("Got replaysList: " + std::to_string(getReplays.replays.size()));
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+				//cvar_->log("Replay list parsed in : " + std::to_string(dt) + "[micro seconds]");
 				OnLastMatches(getReplays);
 			}
 			catch (const std::exception & e) {
@@ -94,6 +97,60 @@ GetReplayResponseData BallchasingAPI::GetCachedDetail(std::string id)
 	return GetReplayResponseData();
 }
 
+void BallchasingAPI::GetToplevelGroups()
+{
+	std::thread t([this]() {
+		std::string url = "/api/groups?creator=me";
+
+		auto res = cli.Get(url.c_str(), GetAuthHeaders());
+		if (res && res->status == 200)
+		{
+			json j = json::parse(res->body);
+
+			try {
+				auto groupList = j["list"].get < std::vector<GroupData>>();
+				cvar_->log("got grups");
+			}
+			catch (const std::exception & e) {
+				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				cvar_->log(e.what());
+			}
+		}
+		else {
+			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			cvar_->log("GetToplevelGroups result was null");
+		}
+		});
+	t.detach();
+}
+
+void BallchasingAPI::GetGroupStats()
+{
+	std::thread t([this]() {
+		std::string url = "/api/groups/21-2-04-2020-tf01r9mjhz";
+
+		auto res = cli.Get(url.c_str(), GetAuthHeaders());
+		if (res && res->status == 200)
+		{
+			json j = json::parse(res->body);
+
+			try {
+				auto groupList = j.get <GroupData>();
+				cvar_->log("got grup stats");
+			}
+			catch (const std::exception & e) {
+				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				cvar_->log(e.what());
+			}
+		}
+		else {
+			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			cvar_->log("GetGroupStats result was null");
+		}
+		});
+	t.detach();
+}
+
 void BallchasingAPI::GetReplayDetails(std::string id)
 {
 	
@@ -108,7 +165,11 @@ void BallchasingAPI::GetReplayDetails(std::string id)
 			if (status == "ok") {
 
 				try {
+					std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 					auto replayDetails = j.get<GetReplayResponseData>();
+					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+					auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+					//cvar_->log("Replay details parsed in : " + std::to_string(dt) + "[micro seconds]");
 					OnReplayDetails(replayDetails);
 				}
 				catch (const std::exception & e) {
