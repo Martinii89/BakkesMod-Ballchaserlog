@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "../json/json.hpp"
 #include "APIDataClasses.h"
-using json = nlohmann::json;
 
 #define JOPTIONAL(var) if (j.find(#var) != j.end()){j.at(#var).get_to(p.var);}
 #define JOPTIONAL2(var, var2) if (j.find(#var) != j.end()){j.at(#var).get_to(p.var2);}
@@ -9,7 +8,20 @@ using json = nlohmann::json;
 #define J2(var, var2) j.at(#var).get_to(p.var2);
 
 
-void from_json(const json& j, GetReplayResponseData& p) {
+void from_json(const nlohmann::json & j, BaseReplayGroup & p) {
+	JOPTIONAL(id);
+	JOPTIONAL(name);
+	JOPTIONAL(link);
+	JOPTIONAL(created);
+}
+
+
+void from_json(const nlohmann::json & j, GetReplayGroupsResponseData & p) {
+	JOPTIONAL(next);
+	JOPTIONAL(list)
+}
+
+void from_json(const nlohmann::json& j, GetReplayResponseData& p) {
 	JOPTIONAL(replay_title);
 	JOPTIONAL2(title, replay_title);
 	JOPTIONAL(status);
@@ -18,7 +30,7 @@ void from_json(const json& j, GetReplayResponseData& p) {
 	JOPTIONAL(orange);
 }
 
-void from_json(const json& j, GetReplaysResponse& p) {
+void from_json(const nlohmann::json& j, GetReplaysResponse& p) {
 	J(count);
 	J2(list, replays);
 }

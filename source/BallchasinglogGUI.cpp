@@ -21,6 +21,7 @@ std::string joinPlayers(Team t)
 // Do ImGui rendering here
 void Ballchasinglog::Render()
 {
+	const std::string LATEST_REPLAYS = "latest_replays";
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
 		// Early out if the window is collapsed, as an optimization.
@@ -33,6 +34,7 @@ void Ballchasinglog::Render()
 	static bool replayListCollapsed = false;
 	static float uncollapseWidth = 0;
 	static std::string detailID = "";
+	static std::string groupId = LATEST_REPLAYS;
 
 	if (!replayListCollapsed)
 	{
@@ -43,19 +45,20 @@ void Ballchasinglog::Render()
 			ImGui::SetColumnWidth(0, 30);
 		}
 		ImGui::BeginChild("ReplayGroupList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		for (auto& replay : api->lastMatchesResult)
+		if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
+			groupId = LATEST_REPLAYS;
+		}
+		for (auto& group : api->replayGroupsList)
 		{
-			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+			if (ImGui::Selectable(group.name.c_str(), group.id == groupId))
 			{
-				cvarManager->log("selected detail");
-				detailID = replay.id;
+				//cvarManager->log("selected a group");
+				groupId = group.id;
 			}
 			if (ImGui::IsItemHovered()) {
 				ImGui::BeginTooltip();
-				std::string blueTeam = joinPlayers(replay.blue);
-				std::string orangeTeam = joinPlayers(replay.orange);
-				ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
-				ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
+				ImGui::Text("Created: %s", group.created);
+				ImGui::Text("Link: %s", group.link);
 				ImGui::EndTooltip();
 			}
 		}
@@ -67,7 +70,7 @@ void Ballchasinglog::Render()
 		{
 			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
 			{
-				cvarManager->log("selected detail");
+				cvarManager->log("selected a replay");
 				detailID = replay.id;
 			}
 			if (ImGui::IsItemHovered()) {
@@ -140,6 +143,7 @@ void Ballchasinglog::OnOpen()
 {
 	isWindowOpen_ = true;
 	api->GetLastMatches();
+	api->GetToplevelGroups();
 }
 
 // Called when window is closed

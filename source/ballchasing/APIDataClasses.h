@@ -158,11 +158,15 @@ struct GroupPlayer
 };
 
 
-struct GroupData
-{
+struct BaseReplayGroup {
 	std::string id;
+	std::string link;
 	std::string name;
 	std::string created;
+};
+
+struct GroupData : BaseReplayGroup
+{
 	std::string status;
 	bool shared;
 
@@ -175,8 +179,15 @@ struct GetReplaysResponse
 	std::vector<GetReplayResponseData> replays;
 };
 
+struct GetReplayGroupsResponseData
+{
+	std::string next;
+	std::vector<BaseReplayGroup> list;
+};
 
 
+void from_json(const nlohmann::json& j, BaseReplayGroup& p);
+void from_json(const nlohmann::json& j, GetReplayGroupsResponseData& p);
 void from_json(const nlohmann::json& j, GetReplayResponseData& p);
 void from_json(const nlohmann::json& j, GetReplaysResponse& p);
 void from_json(const nlohmann::json& j, Team& p);

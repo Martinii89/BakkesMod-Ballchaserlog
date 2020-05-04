@@ -79,6 +79,11 @@ void BallchasingAPI::OnLastMatches(GetReplaysResponse res)
 	lastMatchesResult = res.replays;
 }
 
+void BallchasingAPI::OnGetReplayGroups(GetReplayGroupsResponseData res)
+{
+	replayGroupsList = res.list;
+}
+
 GetReplayResponseData BallchasingAPI::GetCachedDetail(std::string id)
 {
 	auto it = detailsCache_.find(id);
@@ -108,8 +113,13 @@ void BallchasingAPI::GetToplevelGroups()
 			json j = json::parse(res->body);
 
 			try {
-				auto groupList = j["list"].get < std::vector<GroupData>>();
-				cvar_->log("got grups");
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				auto groupList = j.get<GetReplayGroupsResponseData>();
+				//cvar_->log("Replay list: " + groupList.list[0].name);
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+				//cvar_->log("Replay list parsed in : " + std::to_string(dt) + "[micro seconds]");
+				OnGetReplayGroups(groupList);
 			}
 			catch (const std::exception & e) {
 				gw_->Toast("Ballchasing log", "ERROR! Check console for details");

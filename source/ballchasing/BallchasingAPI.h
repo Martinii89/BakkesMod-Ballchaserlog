@@ -19,6 +19,8 @@ public:
 	GetReplayResponseData GetCachedDetail(std::string id);
 
 	void GetToplevelGroups();
+	std::vector<BaseReplayGroup> replayGroupsList;
+
 	void GetGroupStats();
 
 private:
@@ -27,6 +29,7 @@ private:
 	std::shared_ptr<GameWrapper> gw_;
 	httplib::SSLClient cli;
 
+	void OnGetReplayGroups(GetReplayGroupsResponseData res);
 	GetReplayResponseData GetTemporaryOverviewData(std::string id);
 	void OnLastMatches(GetReplaysResponse res);
 	void OnReplayDetails(GetReplayResponseData details);
