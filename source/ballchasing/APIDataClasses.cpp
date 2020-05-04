@@ -31,15 +31,15 @@ void from_json(const nlohmann::json& j, GetReplayResponseData& p) {
 }
 
 void from_json(const nlohmann::json& j, GetReplaysResponse& p) {
-	J(count);
-	J2(list, replays);
+	JOPTIONAL(count);
+	JOPTIONAL2(list, replays);
 }
 
 void from_json(const nlohmann::json& j, Team& p)
 {
 	JOPTIONAL(name);
 	JOPTIONAL(goals);
-	J(players);
+	JOPTIONAL(players);
 }
 
 void from_json(const nlohmann::json& j, Team::Player& p)

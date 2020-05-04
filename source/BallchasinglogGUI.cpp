@@ -50,6 +50,7 @@ void Ballchasinglog::Render()
 		if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
 			groupId = LATEST_REPLAYS;
 			groupName = DEFAULT_GROUP_NAME;
+			api->GetLastMatches();
 		}
 		for (auto& group : api->replayGroupsList)
 		{
@@ -58,12 +59,12 @@ void Ballchasinglog::Render()
 				//cvarManager->log("selected a group");
 				groupId = group.id;
 				groupName = group.name;
-				OnReplayGroupChange(group.link);
+				OnReplayGroupChange(group.id);
 			}
 			if (ImGui::IsItemHovered()) {
 				ImGui::BeginTooltip();
-				ImGui::Text("Created: %s", group.created);
-				ImGui::Text("Link: %s", group.link);
+				ImGui::Text("Created: %s", group.created.c_str());
+				ImGui::Text("Link: %s", group.link.c_str());
 				ImGui::EndTooltip();
 			}
 		}

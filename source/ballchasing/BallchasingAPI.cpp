@@ -33,6 +33,7 @@ void BallchasingAPI::Ping()
 
 void BallchasingAPI::GetLastMatches()
 {
+	replayGroupResult.clear();
 	gw_->Toast("Ballchasing log", "Fetching your most recent replays");
 	std::thread t([this]() {
 		std::string url = "/api/replays?uploader=me";
@@ -135,6 +136,7 @@ void BallchasingAPI::GetToplevelGroups()
 
 void BallchasingAPI::GetReplayGroupMatches(std::string id)
 {
+	replayGroupResult.clear();
 	std::thread t([this, id]() {
 		std::string url = "/api/replays?group=" + id;
 
