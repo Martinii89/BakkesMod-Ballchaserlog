@@ -65,7 +65,7 @@ void BallchasingAPI::GetLastMatches()
 
 GetReplayResponseData BallchasingAPI::GetTemporaryOverviewData(std::string id)
 {
-	for (auto& d : lastMatchesResult)
+	for (auto& d : replayGroupResult)
 	{
 		if (d.id == id) {
 			return d;
@@ -76,7 +76,7 @@ GetReplayResponseData BallchasingAPI::GetTemporaryOverviewData(std::string id)
 
 void BallchasingAPI::OnLastMatches(GetReplaysResponse res)
 {
-	lastMatchesResult = res.replays;
+	replayGroupResult = res.replays;
 }
 
 void BallchasingAPI::OnGetReplayGroups(GetReplayGroupsResponseData res)
@@ -131,6 +131,51 @@ void BallchasingAPI::GetToplevelGroups()
 			cvar_->log("GetToplevelGroups result was null");
 		}
 		});
+	t.detach();
+}
+
+void BallchasingAPI::GetReplayGroupMatches(std::string link)
+{
+	std::thread t([this, link]() {
+		std::string url = link;
+		cvar_->log("link is: " + link);
+
+		//auto res = cli.Get(url.c_str(), GetAuthHeaders());
+		//if (res && res->status == 200)
+		//{
+		//	json j = json::parse(res->body);
+		//	std::string status = j["status"].get<std::string>();
+		//	if (status == "ok") {
+
+		//		try {
+		//			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+		//			auto replayDetails = j.get<GetReplayResponseData>();
+		//			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		//			auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+		//			//cvar_->log("Replay details parsed in : " + std::to_string(dt) + "[micro seconds]");
+		//			OnReplayDetails(replayDetails);
+		//		}
+		//		catch (const std::exception& e) {
+		//			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+		//			//gw_->Toast("Ballchasing parse error", e.what(), "default", 10);
+		//			cvar_->log(e.what());
+		//		}
+		//	}
+		//	else if (status == "pending")
+		//	{
+		//		//retry
+
+		//		GetReplayDetails(id);
+		//	}
+		//	else {
+		//		//Failed replay. fail silenty for now
+		//	}
+		//}
+		//else {
+		//	gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+		//	cvar_->log("GetReplayDetails result was null");
+		//}
+	});
 	t.detach();
 }
 

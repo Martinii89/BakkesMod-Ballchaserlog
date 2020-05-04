@@ -14,12 +14,14 @@ public:
 	void Ping();
 
 	void GetLastMatches();
-	std::vector<GetReplayResponseData> lastMatchesResult;
+	std::vector<GetReplayResponseData> replayGroupResult;
 
 	GetReplayResponseData GetCachedDetail(std::string id);
 
 	void GetToplevelGroups();
 	std::vector<BaseReplayGroup> replayGroupsList;
+
+	void GetReplayGroupMatches(std::string link);
 
 	void GetGroupStats();
 

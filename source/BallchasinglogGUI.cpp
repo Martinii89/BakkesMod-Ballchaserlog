@@ -54,6 +54,7 @@ void Ballchasinglog::Render()
 			{
 				//cvarManager->log("selected a group");
 				groupId = group.id;
+				OnReplayGroupChange(group.link);
 			}
 			if (ImGui::IsItemHovered()) {
 				ImGui::BeginTooltip();
@@ -66,7 +67,7 @@ void Ballchasinglog::Render()
 
 		ImGui::Text("Your latest replays");
 		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		for (auto& replay : api->lastMatchesResult)
+		for (auto& replay : api->replayGroupResult)
 		{
 			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
 			{
@@ -144,6 +145,12 @@ void Ballchasinglog::OnOpen()
 	isWindowOpen_ = true;
 	api->GetLastMatches();
 	api->GetToplevelGroups();
+}
+
+// Called when window is opened
+void Ballchasinglog::OnReplayGroupChange(std::string link)
+{
+	api->GetReplayGroupMatches(link);
 }
 
 // Called when window is closed

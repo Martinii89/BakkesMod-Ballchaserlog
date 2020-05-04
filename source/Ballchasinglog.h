@@ -33,6 +33,7 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	virtual void OnOpen() override;
 	virtual void OnClose() override;
 
+	void OnReplayGroupChange(std::string link);
 	void RenderReplayDetail(GetReplayResponseData* detail);
 
 	void CoreStatsContextMenu();
