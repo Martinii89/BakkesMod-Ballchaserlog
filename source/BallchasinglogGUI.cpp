@@ -22,6 +22,7 @@ std::string joinPlayers(Team t)
 void Ballchasinglog::Render()
 {
 	const std::string LATEST_REPLAYS = "latest_replays";
+	const std::string DEFAULT_GROUP_NAME = "Your latest replays";
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
 		// Early out if the window is collapsed, as an optimization.
@@ -35,6 +36,7 @@ void Ballchasinglog::Render()
 	static float uncollapseWidth = 0;
 	static std::string detailID = "";
 	static std::string groupId = LATEST_REPLAYS;
+	static std::string groupName = DEFAULT_GROUP_NAME;
 
 	if (!replayListCollapsed)
 	{
@@ -47,6 +49,7 @@ void Ballchasinglog::Render()
 		ImGui::BeginChild("ReplayGroupList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
 		if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
 			groupId = LATEST_REPLAYS;
+			groupName = DEFAULT_GROUP_NAME;
 		}
 		for (auto& group : api->replayGroupsList)
 		{
@@ -54,6 +57,7 @@ void Ballchasinglog::Render()
 			{
 				//cvarManager->log("selected a group");
 				groupId = group.id;
+				groupName = group.name;
 				OnReplayGroupChange(group.link);
 			}
 			if (ImGui::IsItemHovered()) {
@@ -65,7 +69,8 @@ void Ballchasinglog::Render()
 		}
 		ImGui::EndChild();
 
-		ImGui::Text("Your latest replays");
+		ImGui::Text(groupName.c_str());
+
 		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
 		for (auto& replay : api->replayGroupResult)
 		{

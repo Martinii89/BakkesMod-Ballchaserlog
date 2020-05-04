@@ -33,7 +33,7 @@ private:
 
 	void OnGetReplayGroups(GetReplayGroupsResponseData res);
 	GetReplayResponseData GetTemporaryOverviewData(std::string id);
-	void OnLastMatches(GetReplaysResponse res);
+	void onReplayGroupChange(GetReplaysResponse res);
 	void OnReplayDetails(GetReplayResponseData details);
 	void GetReplayDetails(std::string id);
 	httplib::Headers GetAuthHeaders();
