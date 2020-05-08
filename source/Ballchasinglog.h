@@ -7,7 +7,7 @@
 
 constexpr auto plugin_version = "1.0";
 
-class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
+class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
 
 	//Boilerplate
@@ -33,6 +33,7 @@ class Ballchaserlog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod
 	virtual void OnOpen() override;
 	virtual void OnClose() override;
 
+	void OnReplayGroupChange(std::string link);
 	void RenderReplayDetail(GetReplayResponseData* detail);
 
 	void CoreStatsContextMenu();

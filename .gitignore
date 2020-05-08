@@ -337,6 +337,6 @@ MigrationBackup/
 .ionide/
 *.zip
 *.exp
-/plugins/Ballchaserlog.dll
-/plugins/Ballchaserlog.lib
+/plugins/Ballchasinglog.dll
+/plugins/Ballchasinglog.lib
 /ss.png

@@ -33,6 +33,7 @@ void BallchasingAPI::Ping()
 
 void BallchasingAPI::GetLastMatches()
 {
+	replayGroupResult.clear();
 	gw_->Toast("Ballchasing log", "Fetching your most recent replays");
 	std::thread t([this]() {
 		std::string url = "/api/replays?uploader=me";
@@ -48,7 +49,7 @@ void BallchasingAPI::GetLastMatches()
 				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 				auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
 				//cvar_->log("Replay list parsed in : " + std::to_string(dt) + "[micro seconds]");
-				OnLastMatches(getReplays);
+				onReplayGroupChange(getReplays);
 			}
 			catch (const std::exception & e) {
 				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
@@ -65,7 +66,7 @@ void BallchasingAPI::GetLastMatches()
 
 GetReplayResponseData BallchasingAPI::GetTemporaryOverviewData(std::string id)
 {
-	for (auto& d : lastMatchesResult)
+	for (auto& d : replayGroupResult)
 	{
 		if (d.id == id) {
 			return d;
@@ -74,9 +75,14 @@ GetReplayResponseData BallchasingAPI::GetTemporaryOverviewData(std::string id)
 	return GetReplayResponseData();
 }
 
-void BallchasingAPI::OnLastMatches(GetReplaysResponse res)
+void BallchasingAPI::onReplayGroupChange(GetReplaysResponse res)
 {
-	lastMatchesResult = res.replays;
+	replayGroupResult = res.replays;
+}
+
+void BallchasingAPI::OnGetReplayGroups(GetReplayGroupsResponseData res)
+{
+	replayGroupsList = res.list;
 }
 
 GetReplayResponseData BallchasingAPI::GetCachedDetail(std::string id)
@@ -106,10 +112,14 @@ void BallchasingAPI::GetToplevelGroups()
 		if (res && res->status == 200)
 		{
 			json j = json::parse(res->body);
-
 			try {
-				auto groupList = j["list"].get < std::vector<GroupData>>();
-				cvar_->log("got grups");
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				auto groupList = j.get<GetReplayGroupsResponseData>();
+				//cvar_->log("Replay list: " + groupList.list[0].name);
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+				//cvar_->log("Replay list parsed in : " + std::to_string(dt) + "[micro seconds]");
+				OnGetReplayGroups(groupList);
 			}
 			catch (const std::exception & e) {
 				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
@@ -121,6 +131,39 @@ void BallchasingAPI::GetToplevelGroups()
 			cvar_->log("GetToplevelGroups result was null");
 		}
 		});
+	t.detach();
+}
+
+void BallchasingAPI::GetReplayGroupMatches(std::string id)
+{
+	replayGroupResult.clear();
+	std::thread t([this, id]() {
+		std::string url = "/api/replays?group=" + id;
+
+		auto res = cli.Get(url.c_str(), GetAuthHeaders());
+		if (res && res->status == 200)
+		{
+			//cvar_->log("Replay list first 2k res->body: " + res->body.substr(0, 2000));
+			json j = json::parse(res->body);
+			try {
+				std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				auto getReplays = j.get<GetReplaysResponse>();
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+				//cvar_->log("Replay list parsed in : " + std::to_string(dt) + "[micro seconds]");
+				onReplayGroupChange(getReplays);
+			}
+			catch (const std::exception& e) {
+				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				//gw_->Toast("Ballchasing parse error", e.what(), "default", 10);
+				cvar_->log(e.what());
+			}
+		}
+		else {
+			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			cvar_->log("GetReplayDetails result was null");
+		}
+	});
 	t.detach();
 }
 

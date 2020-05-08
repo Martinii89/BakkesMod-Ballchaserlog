@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Ballchaserlog.h"
+#include "Ballchasinglog.h"
 #include "IMGUI/imgui_internal.h"
 
 
@@ -19,8 +19,10 @@ std::string joinPlayers(Team t)
 }
 
 // Do ImGui rendering here
-void Ballchaserlog::Render()
+void Ballchasinglog::Render()
 {
+	const std::string LATEST_REPLAYS = "latest_replays";
+	const std::string DEFAULT_GROUP_NAME = "Your latest replays";
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
 		// Early out if the window is collapsed, as an optimization.
@@ -33,29 +35,49 @@ void Ballchaserlog::Render()
 	static bool replayListCollapsed = false;
 	static float uncollapseWidth = 0;
 	static std::string detailID = "";
+	static std::string groupId = LATEST_REPLAYS;
+	static std::string groupName = DEFAULT_GROUP_NAME;
+
 	if (!replayListCollapsed)
 	{
-		ImGui::Text("Your latest replays"); ImGui::SameLine(ImGui::GetColumnWidth(0) - 25);
+		ImGui::Text("Your replay groups"); ImGui::SameLine(ImGui::GetColumnWidth(0) - 25);
 		if (ImGui::ArrowButton(">>", ImGuiDir_Left)) {
 			replayListCollapsed = true;
 			uncollapseWidth = ImGui::GetColumnWidth(0);
-			ImGui::SetColumnWidth(0, 20);
+			ImGui::SetColumnWidth(0, 30);
 		}
-	}
-	else {
-		if (ImGui::ArrowButton(">>", ImGuiDir_Right)) {
-			replayListCollapsed = false;
-			ImGui::SetColumnWidth(0, uncollapseWidth);
+		ImGui::BeginChild("ReplayGroupList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
+		if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
+			groupId = LATEST_REPLAYS;
+			groupName = DEFAULT_GROUP_NAME;
+			api->GetLastMatches();
 		}
-	}
-	ImGui::BeginChild("ReplayList");
+		for (auto& group : api->replayGroupsList)
+		{
+			if (ImGui::Selectable(group.name.c_str(), group.id == groupId))
+			{
+				//cvarManager->log("selected a group");
+				groupId = group.id;
+				groupName = group.name;
+				OnReplayGroupChange(group.id);
+			}
+			if (ImGui::IsItemHovered()) {
+				ImGui::BeginTooltip();
+				ImGui::Text("Created: %s", group.created.c_str());
+				ImGui::Text("Link: %s", group.link.c_str());
+				ImGui::EndTooltip();
+			}
+		}
+		ImGui::EndChild();
 
-	if (!replayListCollapsed){
-		for (auto& replay : api->lastMatchesResult)
+		ImGui::Text(groupName.c_str());
+
+		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
+		for (auto& replay : api->replayGroupResult)
 		{
 			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
 			{
-				cvarManager->log("selected detail");
+				cvarManager->log("selected a replay");
 				detailID = replay.id;
 			}
 			if (ImGui::IsItemHovered()) {
@@ -67,12 +89,19 @@ void Ballchaserlog::Render()
 				ImGui::EndTooltip();
 			}
 		}
+		ImGui::EndChild();
 	}
-	ImGui::EndChild();
+	else {
+		if (ImGui::ArrowButton(">>", ImGuiDir_Right)) {
+			replayListCollapsed = false;
+			ImGui::SetColumnWidth(0, uncollapseWidth);
+		}
+	}
+
 	ImGui::NextColumn();
 	if (!detailID.empty())
 	{
-		ImGui::Text("Righ click any tab to configure which stats is shown - drag to reorder");
+		ImGui::Text("Right click any tab to configure which stats is shown - drag to reorder");
 		auto replayDetail = api->GetCachedDetail(detailID);
 		RenderReplayDetail(&replayDetail);
 	}
@@ -87,44 +116,51 @@ void Ballchaserlog::Render()
 }
 
 // Name of the menu that is used to toggle the window.
-std::string Ballchaserlog::GetMenuName()
+std::string Ballchasinglog::GetMenuName()
 {
-	return "Ballchasing";
+	return "ballchasing";
 }
 
 // Title to give the menu
-std::string Ballchaserlog::GetMenuTitle()
+std::string Ballchasinglog::GetMenuTitle()
 {
 	return menuTitle_;
 }
 
 // Don't call this yourself, BM will call this function with a pointer to the current ImGui context
-void Ballchaserlog::SetImGuiContext(uintptr_t ctx)
+void Ballchasinglog::SetImGuiContext(uintptr_t ctx)
 {
 	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
 }
 
 // Should events such as mouse clicks/key inputs be blocked so they won't reach the game
-bool Ballchaserlog::ShouldBlockInput()
+bool Ballchasinglog::ShouldBlockInput()
 {
 	return ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard;
 }
 
 // Return true if window should be interactive
-bool Ballchaserlog::IsActiveOverlay()
+bool Ballchasinglog::IsActiveOverlay()
 {
 	return true;
 }
 
 // Called when window is opened
-void Ballchaserlog::OnOpen()
+void Ballchasinglog::OnOpen()
 {
 	isWindowOpen_ = true;
 	api->GetLastMatches();
+	api->GetToplevelGroups();
+}
+
+// Called when window is opened
+void Ballchasinglog::OnReplayGroupChange(std::string link)
+{
+	api->GetReplayGroupMatches(link);
 }
 
 // Called when window is closed
-void Ballchaserlog::OnClose()
+void Ballchasinglog::OnClose()
 {
 	isWindowOpen_ = false;
 }
@@ -154,7 +190,7 @@ void DrawTeamOverviewStats(Team& team)
 
 
 
-void Ballchaserlog::RenderReplayDetail(GetReplayResponseData* detail)
+void Ballchasinglog::RenderReplayDetail(GetReplayResponseData* detail)
 {
 	if (ImGui::BeginTabBar("#"))
 	{
@@ -170,7 +206,7 @@ void Ballchaserlog::RenderReplayDetail(GetReplayResponseData* detail)
 }
 
 
-void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
+void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 {
 	if (ImGui::BeginPopupContextItem())
 	{
@@ -198,7 +234,7 @@ void Ballchaserlog::ContextMenu(std::vector<TableColumn>& columnData)
 		ImGui::EndPopup();
 	}
 }
-void Ballchaserlog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
+void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
 {
 	bool tabOpen = ImGui::BeginTabItem(name.c_str());
 	ContextMenu(settings.Columns);
@@ -214,7 +250,7 @@ void Ballchaserlog::RenderTableTab(std::string name, TableSettings& settings, Ge
 	}
 }
 
-void Ballchaserlog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
+void Ballchasinglog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
 {
 	int cols = ImGui::GetColumnsCount();
 	ImGui::Columns(settings.GetColumnCount());

@@ -14,11 +14,15 @@ public:
 	void Ping();
 
 	void GetLastMatches();
-	std::vector<GetReplayResponseData> lastMatchesResult;
+	std::vector<GetReplayResponseData> replayGroupResult;
 
 	GetReplayResponseData GetCachedDetail(std::string id);
 
 	void GetToplevelGroups();
+	std::vector<BaseReplayGroup> replayGroupsList;
+
+	void GetReplayGroupMatches(std::string link);
+
 	void GetGroupStats();
 
 private:
@@ -27,8 +31,9 @@ private:
 	std::shared_ptr<GameWrapper> gw_;
 	httplib::SSLClient cli;
 
+	void OnGetReplayGroups(GetReplayGroupsResponseData res);
 	GetReplayResponseData GetTemporaryOverviewData(std::string id);
-	void OnLastMatches(GetReplaysResponse res);
+	void onReplayGroupChange(GetReplaysResponse res);
 	void OnReplayDetails(GetReplayResponseData details);
 	void GetReplayDetails(std::string id);
 	httplib::Headers GetAuthHeaders();
