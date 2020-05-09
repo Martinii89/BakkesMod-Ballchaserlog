@@ -18,10 +18,52 @@ std::string joinPlayers(Team t)
 	return ss.str();
 }
 
+void Ballchasinglog::RenderGroup(GroupData* group, GroupData** selectedGroup) {
+	if (group == nullptr) return;
+	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+	ImGuiTreeNodeFlags node_flags = base_flags;
+	if (group == *selectedGroup)
+		node_flags |= ImGuiTreeNodeFlags_Selected;
+	bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)group, node_flags, group->name.c_str());
+	if (ImGui::IsItemClicked()) {
+		*selectedGroup = group;
+		OnReplayGroupChange(group->id);
+		api->GetSubGroups(group->id);
+	}
+	if (node_open)
+	{
+		for (auto subgroupID : group->subgroups) {
+			auto pSubGroup = api->GetCachedGroup(subgroupID);
+			RenderGroup(pSubGroup, selectedGroup);
+		}
+		ImGui::TreePop();
+	}
+	return;
+	//if (ImGui::Selectable(group->name.c_str(), *selectedGroup != nullptr && group->id == (*selectedGroup)->id))
+	//{
+	//	*selectedGroup = group;
+	//	//selectedGroupID = group->id;
+	//	//cvarManager->log("selected a group");
+	//	//groupId = group.id;
+	//	//groupName = group.name;
+	//	OnReplayGroupChange(group->id);
+	//}
+	//if (ImGui::IsItemClicked()) {
+	//	api->GetSubGroups(group->id);
+	//	cvarManager->log("Just clicked group with ID" + group->id);
+	//}
+	//if (ImGui::IsItemHovered()) {
+	//	ImGui::BeginTooltip();
+	//	ImGui::Text("Created: %s", group->created.c_str());
+	//	ImGui::Text("Link: %s", group->link.c_str());
+	//	ImGui::EndTooltip();
+	//}
+}
+
 // Do ImGui rendering here
 void Ballchasinglog::Render()
 {
-	const std::string LATEST_REPLAYS = "latest_replays";
+	const std::string LATEST_REPLAYS = "LATEST";
 	const std::string DEFAULT_GROUP_NAME = "Your latest replays";
 	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
@@ -35,8 +77,10 @@ void Ballchasinglog::Render()
 	static bool replayListCollapsed = false;
 	static float uncollapseWidth = 0;
 	static std::string detailID = "";
-	static std::string groupId = LATEST_REPLAYS;
-	static std::string groupName = DEFAULT_GROUP_NAME;
+	static std::string selectedGroupID = LATEST_REPLAYS;
+	//static std::string groupName = DEFAULT_GROUP_NAME;
+
+	GroupData* selectedGroup = api->GetCachedGroup(selectedGroupID);
 
 	if (!replayListCollapsed)
 	{
@@ -47,46 +91,46 @@ void Ballchasinglog::Render()
 			ImGui::SetColumnWidth(0, 30);
 		}
 		ImGui::BeginChild("ReplayGroupList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
-			groupId = LATEST_REPLAYS;
-			groupName = DEFAULT_GROUP_NAME;
-			api->GetLastMatches();
-		}
-		for (auto& group : api->replayGroupsList)
+		//if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
+		//	groupId = LATEST_REPLAYS;
+		//	groupName = DEFAULT_GROUP_NAME;
+		//	api->GetLastMatches();
+		//}
+
+		
+		for (auto& groupID : api->topLevelGroups)
 		{
-			if (ImGui::Selectable(group.name.c_str(), group.id == groupId))
-			{
-				//cvarManager->log("selected a group");
-				groupId = group.id;
-				groupName = group.name;
-				OnReplayGroupChange(group.id);
-			}
-			if (ImGui::IsItemHovered()) {
-				ImGui::BeginTooltip();
-				ImGui::Text("Created: %s", group.created.c_str());
-				ImGui::Text("Link: %s", group.link.c_str());
-				ImGui::EndTooltip();
+			GroupData* group = api->GetCachedGroup(groupID);
+			RenderGroup(group, &selectedGroup);
+
+			if (selectedGroup != nullptr) {
+				selectedGroupID = selectedGroup->id;
 			}
 		}
 		ImGui::EndChild();
+		std::string groupName = (selectedGroup != nullptr) ? selectedGroup->name : "";
 
 		ImGui::Text(groupName.c_str());
 
 		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		for (auto& replay : api->replayGroupResult)
+		//for (auto& replay : api->replayList)
+		if (selectedGroup != nullptr)
 		{
-			if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+			for (auto& replay : selectedGroup->groupReplays)
 			{
-				cvarManager->log("selected a replay");
-				detailID = replay.id;
-			}
-			if (ImGui::IsItemHovered()) {
-				ImGui::BeginTooltip();
-				std::string blueTeam = joinPlayers(replay.blue);
-				std::string orangeTeam = joinPlayers(replay.orange);
-				ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
-				ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
-				ImGui::EndTooltip();
+				if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+				{
+					cvarManager->log("selected a replay");
+					detailID = replay.id;
+				}
+				if (ImGui::IsItemHovered()) {
+					ImGui::BeginTooltip();
+					std::string blueTeam = joinPlayers(replay.blue);
+					std::string orangeTeam = joinPlayers(replay.orange);
+					ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
+					ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
+					ImGui::EndTooltip();
+				}
 			}
 		}
 		ImGui::EndChild();
@@ -102,7 +146,7 @@ void Ballchasinglog::Render()
 	if (!detailID.empty())
 	{
 		ImGui::Text("Right click any tab to configure which stats is shown - drag to reorder");
-		auto replayDetail = api->GetCachedDetail(detailID);
+		auto replayDetail = api->GetCachedReplayDetail(detailID, (selectedGroup != nullptr) ? selectedGroup->id : "");
 		RenderReplayDetail(&replayDetail);
 	}
 
@@ -150,13 +194,17 @@ void Ballchasinglog::OnOpen()
 {
 	isWindowOpen_ = true;
 	api->GetLastMatches();
-	api->GetToplevelGroups();
+	api->GetTopLevelGroups();
 }
 
-// Called when window is opened
-void Ballchasinglog::OnReplayGroupChange(std::string link)
+void Ballchasinglog::OnReplayGroupChange(std::string id)
 {
-	api->GetReplayGroupMatches(link);
+	if (id == "LATEST") {
+		api->GetLastMatches();
+	}
+	else {
+		api->GetReplaysForGroup(id);
+	}
 }
 
 // Called when window is closed
@@ -165,32 +213,8 @@ void Ballchasinglog::OnClose()
 	isWindowOpen_ = false;
 }
 
-void DrawTeamOverviewStats(Team& team)
-{
 
-	ImGui::Text("%i", team.goals); ImGui::NextColumn();
-	ImGui::Text("%s", team.name); ImGui::NextColumn();
-	ImGui::Text("SCORE"); ImGui::NextColumn();
-	ImGui::Text("GOALS"); ImGui::NextColumn();
-	ImGui::Text("ASSISTS"); ImGui::NextColumn();
-	ImGui::Text("SAVES"); ImGui::NextColumn();
-	ImGui::Text("SHOTS"); ImGui::NextColumn();
-	ImGui::Separator();
-
-	for (auto& p : team.players) {
-		ImGui::Text(""); ImGui::NextColumn();
-		ImGui::Text("%s", p.name); ImGui::NextColumn();
-		ImGui::Text("%i", p.score); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.goals); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.assists); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.saves); ImGui::NextColumn();
-		ImGui::Text("%i", p.stats.core.shots); ImGui::NextColumn();
-	}
-}
-
-
-
-void Ballchasinglog::RenderReplayDetail(GetReplayResponseData* detail)
+void Ballchasinglog::RenderReplayDetail(ReplayData* detail)
 {
 	if (ImGui::BeginTabBar("#"))
 	{
@@ -234,7 +258,7 @@ void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 		ImGui::EndPopup();
 	}
 }
-void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool bBlueHeader, bool bOrangeHeader)
+void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool bBlueHeader, bool bOrangeHeader)
 {
 	bool tabOpen = ImGui::BeginTabItem(name.c_str());
 	ContextMenu(settings.Columns);

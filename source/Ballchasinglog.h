@@ -24,6 +24,8 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	std::string menuTitle_ = "Ballchasing.com - Log";
 	GUISettings guiSettings;
 
+	void RenderGroup(GroupData* group, GroupData** selectedGroup);
+
 	virtual void Render() override;
 	virtual std::string GetMenuName() override;
 	virtual std::string GetMenuTitle() override;
@@ -34,11 +36,10 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	virtual void OnClose() override;
 
 	void OnReplayGroupChange(std::string link);
-	void RenderReplayDetail(GetReplayResponseData* detail);
+	void RenderReplayDetail(ReplayData* detail);
 
-	void CoreStatsContextMenu();
 	void ContextMenu(std::vector<TableColumn>& columnData);
-	void RenderTableTab(std::string name, TableSettings& settings, GetReplayResponseData* detail, bool blueHeader = true, bool orangeHeader = true );
+	void RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool blueHeader = true, bool orangeHeader = true );
 	void RenderTeamTable(Team& t, TableSettings& settings, bool drawHeader = true);
 	
 	

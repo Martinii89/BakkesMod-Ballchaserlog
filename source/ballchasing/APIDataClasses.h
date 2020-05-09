@@ -3,6 +3,13 @@
 #include <vector>
 #include "../json/json.hpp"
 
+enum class RequestState {
+	UNKNOWN = 0,
+	REQUESTED = 1,
+	FAILED = 2,
+	SUCCESS = 3
+};
+
 struct CoreStats {
 	int shots = 0;
 	int shots_against = 0;
@@ -127,7 +134,7 @@ struct Team
 	};
 	std::vector<Player> players;
 };
-struct GetReplayResponseData
+struct ReplayData
 {
 	std::string replay_title;
 	std::string id;
@@ -158,37 +165,37 @@ struct GroupPlayer
 };
 
 
-struct BaseReplayGroup {
+
+struct GroupData
+{
 	std::string id;
 	std::string link;
 	std::string name;
 	std::string created;
-};
-
-struct GroupData : BaseReplayGroup
-{
 	std::string status;
 	bool shared;
 
 	std::vector<GroupPlayer> players;
+
+	RequestState subGroupsRequested = RequestState::UNKNOWN;
+	std::vector<std::string> subgroups;
+	std::vector<ReplayData> groupReplays;
 };
 
 struct GetReplaysResponse
 {
 	int count;
-	std::vector<GetReplayResponseData> replays;
+	std::vector<ReplayData> replays;
 };
 
 struct GetReplayGroupsResponseData
 {
 	std::string next;
-	std::vector<BaseReplayGroup> list;
+	std::vector<GroupData> list;
 };
 
 
-void from_json(const nlohmann::json& j, BaseReplayGroup& p);
-void from_json(const nlohmann::json& j, GetReplayGroupsResponseData& p);
-void from_json(const nlohmann::json& j, GetReplayResponseData& p);
+void from_json(const nlohmann::json& j, ReplayData& p);
 void from_json(const nlohmann::json& j, GetReplaysResponse& p);
 void from_json(const nlohmann::json& j, Team& p);
 void from_json(const nlohmann::json& j, Team::Player& p);
@@ -202,6 +209,7 @@ void from_json(const nlohmann::json& j, MovementStats& p);
 void from_json(const nlohmann::json& j, PositioningStats& p);
 void from_json(const nlohmann::json& j, DemoStats& p);
 
+void from_json(const nlohmann::json& j, GetReplayGroupsResponseData& p);
 void from_json(const nlohmann::json& j, GroupData& p);
 void from_json(const nlohmann::json& j, GroupPlayer& p);
 void from_json(const nlohmann::json& j, CumulativePlayerStats& p);

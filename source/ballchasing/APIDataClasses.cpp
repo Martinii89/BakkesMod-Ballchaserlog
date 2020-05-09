@@ -8,20 +8,12 @@
 #define J2(var, var2) j.at(#var).get_to(p.var2);
 
 
-void from_json(const nlohmann::json & j, BaseReplayGroup & p) {
-	JOPTIONAL(id);
-	JOPTIONAL(name);
-	JOPTIONAL(link);
-	JOPTIONAL(created);
-}
-
-
 void from_json(const nlohmann::json & j, GetReplayGroupsResponseData & p) {
 	JOPTIONAL(next);
 	JOPTIONAL(list)
 }
 
-void from_json(const nlohmann::json& j, GetReplayResponseData& p) {
+void from_json(const nlohmann::json& j, ReplayData& p) {
 	JOPTIONAL(replay_title);
 	JOPTIONAL2(title, replay_title);
 	JOPTIONAL(status);
@@ -172,9 +164,11 @@ void from_json(const nlohmann::json& j, DemoStats& p)
 void from_json(const nlohmann::json& j, GroupData& p)
 {
 	JOPTIONAL(id);
+	JOPTIONAL(link);
 	JOPTIONAL(name);
 	JOPTIONAL(created);
 	JOPTIONAL(status);
+	JOPTIONAL(shared);
 	JOPTIONAL(players);
 }
 
