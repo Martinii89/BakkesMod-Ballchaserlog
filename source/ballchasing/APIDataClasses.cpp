@@ -178,8 +178,8 @@ void from_json(const nlohmann::json& j, GroupPlayer& p)
 	JOPTIONAL(id);
 	JOPTIONAL(name);
 	JOPTIONAL(team);
-	JOPTIONAL(cumulative);
-	JOPTIONAL(game_average);
+	JOPTIONAL2(cumulative, cumulative_stats);
+	JOPTIONAL2(game_average, stats);
 }
 
 void from_json(const nlohmann::json& j, CumulativePlayerStats& p)

@@ -91,6 +91,16 @@ void BallchasingAPI::OnGotReplayList(std::vector<ReplayData> replayList, std::st
 	group->groupReplays = replayList;
 }
 
+void BallchasingAPI::OnGotGroupStats(GroupData data)
+{
+	bool found;
+	auto pCachedGroup = FindGroupById(data.id, found);
+	if (found) {
+		pCachedGroup->status = data.status;
+		pCachedGroup->players = data.players;
+	}
+}
+
 GroupData* BallchasingAPI::FindGroupById(std::string groupId, bool& found)
 {
 	auto groupFinder = groupCache_.find(groupId);
@@ -106,7 +116,6 @@ GroupData* BallchasingAPI::FindGroupById(std::string groupId, bool& found)
 
 void BallchasingAPI::OnGetReplayGroupsSuccess(GetReplayGroupsResponseData res, std::string parentGroupID)
 {
-	cvar_->log("OnGetReplayGroupsSuccess");
 	if (parentGroupID.empty()) {
 		// TODO: 
 		// Update them rather than replace them if they already exist 
@@ -115,7 +124,6 @@ void BallchasingAPI::OnGetReplayGroupsSuccess(GetReplayGroupsResponseData res, s
 			topLevelGroups.erase(topLevelGroups.begin() + 1, topLevelGroups.end());
 		}
 		for (auto group : res.list) {
-			cvar_->log("Adding toplevel group: " + group.id);
 			topLevelGroups.push_back(group.id);
 			groupCache_[group.id] = group;
 		}
@@ -142,7 +150,6 @@ ReplayData BallchasingAPI::GetCachedReplayDetail(std::string replayID, std::stri
 		return it->second;
 	}
 	else {
-		cvar_->log("Fetching the detailed object");
 		// Add a empty detail object to stop this from executing many more requests
 		replayDetailsCache_[replayID] = GetTemporaryOverviewData(replayID, groupID);
 		// Start to fetch the details.
@@ -226,7 +233,8 @@ void BallchasingAPI::GetGroupStats(std::string id)
 			json j = json::parse(res->body);
 
 			try {
-				auto groupList = j.get <GroupData>();
+				auto groupStats = j.get <GroupData>();
+				OnGotGroupStats(groupStats);
 				cvar_->log("got grup stats");
 			}
 			catch (const std::exception & e) {
@@ -253,7 +261,6 @@ void BallchasingAPI::GetSubGroups(std::string groupID)
 
 			try {
 				auto groupList = j.get<GetReplayGroupsResponseData>();
-				cvar_->log("Got subgroups");
 				OnGetReplayGroupsSuccess(groupList, groupID);
 			}
 			catch (const std::exception & e) {

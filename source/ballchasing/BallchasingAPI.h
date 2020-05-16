@@ -45,6 +45,7 @@ private:
 	void OnReplayDetailsSuccess(ReplayData details);
 
 	void OnGotReplayList(std::vector<ReplayData> replayList, std::string groupId);
+	void OnGotGroupStats(GroupData data);
 
 	GroupData* FindGroupById(std::string groupId, bool& found);
 

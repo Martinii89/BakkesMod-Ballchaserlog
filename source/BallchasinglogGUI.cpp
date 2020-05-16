@@ -29,6 +29,14 @@ void Ballchasinglog::RenderGroup(GroupData* group, GroupData** selectedGroup) {
 		*selectedGroup = group;
 		OnReplayGroupChange(group->id);
 		api->GetSubGroups(group->id);
+		api->GetGroupStats(group->id);
+	}
+	if (ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
+		ImGui::Text("Created: %s", group->created.c_str());
+		ImGui::Text("%s", group->shared ? "Public" : "Private");
+		ImGui::Text("Status: %s", group->status.c_str());
+		ImGui::EndTooltip();
 	}
 	if (node_open)
 	{
@@ -38,26 +46,6 @@ void Ballchasinglog::RenderGroup(GroupData* group, GroupData** selectedGroup) {
 		}
 		ImGui::TreePop();
 	}
-	return;
-	//if (ImGui::Selectable(group->name.c_str(), *selectedGroup != nullptr && group->id == (*selectedGroup)->id))
-	//{
-	//	*selectedGroup = group;
-	//	//selectedGroupID = group->id;
-	//	//cvarManager->log("selected a group");
-	//	//groupId = group.id;
-	//	//groupName = group.name;
-	//	OnReplayGroupChange(group->id);
-	//}
-	//if (ImGui::IsItemClicked()) {
-	//	api->GetSubGroups(group->id);
-	//	cvarManager->log("Just clicked group with ID" + group->id);
-	//}
-	//if (ImGui::IsItemHovered()) {
-	//	ImGui::BeginTooltip();
-	//	ImGui::Text("Created: %s", group->created.c_str());
-	//	ImGui::Text("Link: %s", group->link.c_str());
-	//	ImGui::EndTooltip();
-	//}
 }
 
 // Do ImGui rendering here
@@ -91,13 +79,7 @@ void Ballchasinglog::Render()
 			ImGui::SetColumnWidth(0, 30);
 		}
 		ImGui::BeginChild("ReplayGroupList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		//if (ImGui::Selectable("Latest Replays", LATEST_REPLAYS == groupId)) {
-		//	groupId = LATEST_REPLAYS;
-		//	groupName = DEFAULT_GROUP_NAME;
-		//	api->GetLastMatches();
-		//}
 
-		
 		for (auto& groupID : api->topLevelGroups)
 		{
 			GroupData* group = api->GetCachedGroup(groupID);
@@ -143,11 +125,38 @@ void Ballchasinglog::Render()
 	}
 
 	ImGui::NextColumn();
-	if (!detailID.empty())
+	if (ImGui::BeginTabBar("##DetailTabs"))
 	{
-		ImGui::Text("Right click any tab to configure which stats is shown - drag to reorder");
-		auto replayDetail = api->GetCachedReplayDetail(detailID, (selectedGroup != nullptr) ? selectedGroup->id : "");
-		RenderReplayDetail(&replayDetail);
+		if (selectedGroup != nullptr && selectedGroup->id != "LATEST") {
+			bool tabOpen = ImGui::BeginTabItem("Group Stats");
+
+			if (tabOpen) {
+				ImGui::BeginChild("GroupStats");
+				//ImGui::Text("Render the group stats here!");
+				RenderGroupDetail(selectedGroup);
+				//for (auto& player : selectedGroup->players) {
+				//	ImGui::Text("%s: WinPercent: %.0f%%", player.name, player.cumulative.win_percentage);
+				//}
+				ImGui::EndChild();
+				ImGui::EndTabItem();
+			}
+		}
+
+		if (!detailID.empty())
+		{
+			bool tabOpen = ImGui::BeginTabItem("Replay Stats");
+
+			if (tabOpen) {
+				ImGui::BeginChild("ReplayStats");
+
+				ImGui::Text("Right click any tab to configure which stats is shown - drag to reorder");
+				auto replayDetail = api->GetCachedReplayDetail(detailID, (selectedGroup != nullptr) ? selectedGroup->id : "");
+				RenderReplayDetail(&replayDetail);
+				ImGui::EndChild();
+				ImGui::EndTabItem();
+			}
+		}
+		ImGui::EndTabBar();
 	}
 
 
@@ -229,6 +238,20 @@ void Ballchasinglog::RenderReplayDetail(ReplayData* detail)
 
 }
 
+void Ballchasinglog::RenderGroupDetail(GroupData* group)
+{
+	if (ImGui::BeginTabBar("#"))
+	{
+		RenderGroupTab("Overview", guiSettings.groupOverviewTableConfig, group);
+		RenderGroupTab("Core", guiSettings.coreTableConfig, group);
+		RenderGroupTab("Boost", guiSettings.boostTableConfig, group);
+		RenderGroupTab("Movement", guiSettings.movementTableConfig, group);
+		RenderGroupTab("Positioning", guiSettings.positioningTableConfig, group);
+
+		ImGui::EndTabBar();
+	}
+}
+
 
 void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 {
@@ -274,22 +297,60 @@ void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, R
 	}
 }
 
+void Ballchasinglog::RenderGroupTab(std::string name, TableSettings& settings, GroupData* detail)
+{
+	static Team dummyTeam;
+	bool tabOpen = ImGui::BeginTabItem(name.c_str());
+	ContextMenu(settings.Columns);
+	if (tabOpen)
+	{
+		ImGui::BeginChild((name + "tab").c_str());
+		int cols = ImGui::GetColumnsCount();
+		ImGui::Columns(settings.GetColumnCount());
+		for (auto& col : settings.Columns) {
+			col.RenderHeader(dummyTeam);
+		}
+		ImGui::Separator();
+		for (auto& p : detail->players) {
+			RenderPlayerRow(p, settings);
+		}
+		//RenderTeamTable(detail->blue, settings, bBlueHeader);
+		//ImGui::Separator();
+		//RenderTeamTable(detail->orange, settings, bOrangeHeader);
+
+		ImGui::EndChild();
+		ImGui::EndTabItem();
+	}
+}
+
 void Ballchasinglog::RenderTeamTable(Team& team, TableSettings& settings, bool drawHeader)
 {
 	int cols = ImGui::GetColumnsCount();
 	ImGui::Columns(settings.GetColumnCount());
-	for (auto& col : settings.Columns) {
-		col.RenderHeader(team);
-	}
-	ImGui::Separator();
-
-	for (auto& p : team.players) {
-		for (auto col : settings.Columns) {
-			col.RenderCell(p);
+	if (drawHeader) {
+		for (auto& col : settings.Columns) {
+			col.RenderHeader(team);
 		}
+		ImGui::Separator();
+	}
+
+	
+	for (auto& p : team.players) {
+		RenderPlayerRow(p, settings);
+		//for (auto col : settings.Columns) {
+		//	col.RenderCell(p);
+		//}
 	}
 	ImGui::Columns(cols);
 }
+
+void Ballchasinglog::RenderPlayerRow(BaseStatPlayer& p, TableSettings& settings)
+{
+	for (auto col : settings.Columns) {
+		col.RenderCell(p);
+	}
+}
+
 
 
 
