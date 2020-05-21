@@ -109,6 +109,16 @@ struct DemoStats {
 	float taken = 0;
 };
 
+struct CameraSettings {
+	int fov;
+	int height;
+	int pitch;
+	int distance;
+	float stiffness;
+	float swivel_speed;
+	float transition_speed;
+};
+
 struct PlayerStats
 {
 	CoreStats core;
@@ -118,10 +128,6 @@ struct PlayerStats
 	DemoStats demo;
 };
 
-struct IStatPlayer {
-	virtual std::string GetName() = 0;
-	virtual PlayerStats& GetPlayerStats() = 0;
-};
 
 
 
@@ -138,6 +144,7 @@ struct BaseStatPlayer {
 	std::string name;
 	PlayerStats stats;
 	CumulativePlayerStats cumulative_stats;
+	CameraSettings camera;
 };
 
 struct Team
@@ -152,6 +159,7 @@ struct Team
 		};
 		Id id;
 		int score;
+		
 		//PlayerStats stats;
 
 	};
@@ -223,6 +231,7 @@ void from_json(const nlohmann::json& j, BoostStats& p);
 void from_json(const nlohmann::json& j, MovementStats& p);
 void from_json(const nlohmann::json& j, PositioningStats& p);
 void from_json(const nlohmann::json& j, DemoStats& p);
+void from_json(const nlohmann::json& j, CameraSettings& p);
 
 void from_json(const nlohmann::json& j, GetReplayGroupsResponseData& p);
 void from_json(const nlohmann::json& j, GroupData& p);

@@ -40,6 +40,7 @@ void from_json(const nlohmann::json& j, Team::Player& p)
 	JOPTIONAL(score);
 	JOPTIONAL(id);
 	JOPTIONAL(stats);
+	JOPTIONAL(camera);
 }
 
 void from_json(const nlohmann::json& j, Team::Player::Id& p)
@@ -159,6 +160,17 @@ void from_json(const nlohmann::json& j, DemoStats& p)
 {
 	JOPTIONAL(inflicted);
 	JOPTIONAL(taken);
+}
+
+void from_json(const nlohmann::json& j, CameraSettings& p)
+{
+	JOPTIONAL(fov);
+	JOPTIONAL(height);
+	JOPTIONAL(pitch);
+	JOPTIONAL(distance);
+	JOPTIONAL(stiffness);
+	JOPTIONAL(swivel_speed);
+	JOPTIONAL(transition_speed);
 }
 
 void from_json(const nlohmann::json& j, GroupData& p)

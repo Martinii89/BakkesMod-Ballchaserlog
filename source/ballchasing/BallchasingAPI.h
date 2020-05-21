@@ -25,6 +25,7 @@ public:
 	void GetReplaysForGroup(std::string id);
 	void GetGroupStats(std::string id);
 	void GetSubGroups(std::string groupID);
+	void AddReplayToGroup(std::string replayID, std::string groupID);
 
 	// Get cached results
 	ReplayData GetCachedReplayDetail(std::string replayID, std::string groupID);

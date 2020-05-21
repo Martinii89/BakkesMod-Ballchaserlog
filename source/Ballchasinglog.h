@@ -9,7 +9,6 @@ constexpr auto plugin_version = "1.0";
 
 class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
-
 	//Boilerplate
 	virtual void onLoad();
 	virtual void onUnload();
@@ -40,6 +39,7 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	void RenderGroupDetail(GroupData* group);
 
 	void ContextMenu(std::vector<TableColumn>& columnData);
+	bool ContextMenu(ReplayData* detail, GroupData* parentGroup);
 	void RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool blueHeader = true, bool orangeHeader = true );
 	void RenderGroupTab(std::string name, TableSettings& settings, GroupData* detail);
 	void RenderTeamTable(Team& t, TableSettings& settings, bool drawHeader = true);

@@ -123,6 +123,16 @@ struct GUISettings {
 		{"Goals against while last defender",	[](BaseStatPlayer& p) {RenderCell(p.stats.positioning.goals_against_while_last_defender); }, false},
 	} };
 
+	TableSettings cameraTableConfig{ {
+	{"Player Name",		[](BaseStatPlayer& p) {RenderCell(p.name); }, true},
+	{"FOV",				[](BaseStatPlayer& p) {RenderCell(p.camera.fov); }, true},
+	{"Height",			[](BaseStatPlayer& p) {RenderCell(p.camera.height); }, true},
+	{"Distance",		[](BaseStatPlayer& p) {RenderCell(p.camera.distance); }, true},
+	{"Stiffness",		[](BaseStatPlayer& p) {RenderCell(p.camera.stiffness); }, true},
+	{"Swivel Speed",	[](BaseStatPlayer& p) {RenderCell(p.camera.swivel_speed); }, true},
+	{"Transition Speed",[](BaseStatPlayer& p) {RenderCell(p.camera.transition_speed); }, true},
+} };
+
 	TableSettings groupOverviewTableConfig{ {
 	{"Player name",				[](BaseStatPlayer& p) {RenderCell(p.name); }, [](Team& t) {RenderCell(t.name); }, true},
 	{"Games",					[](BaseStatPlayer& p) {RenderCell(p.cumulative_stats.games); }, true},

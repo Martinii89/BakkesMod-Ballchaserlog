@@ -95,14 +95,14 @@ void Ballchasinglog::Render()
 		ImGui::Text(groupName.c_str());
 
 		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 40), true);
-		//for (auto& replay : api->replayList)
 		if (selectedGroup != nullptr)
 		{
+			static ReplayData* rightClickedReplay = nullptr;
 			for (auto& replay : selectedGroup->groupReplays)
 			{
-				if (ImGui::Selectable(replay.replay_title.c_str(), replay.id == detailID))
+				std::string list_lbl = replay.replay_title + "##replaylist";
+				if (ImGui::Selectable(list_lbl.c_str(), replay.id == detailID || &replay == rightClickedReplay))
 				{
-					cvarManager->log("selected a replay");
 					detailID = replay.id;
 				}
 				if (ImGui::IsItemHovered()) {
@@ -112,6 +112,12 @@ void Ballchasinglog::Render()
 					ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
 					ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
 					ImGui::EndTooltip();
+				}
+
+				if (&replay == rightClickedReplay) { rightClickedReplay = nullptr; }
+
+				if (ContextMenu(&replay, selectedGroup)) {
+					rightClickedReplay = &replay;
 				}
 			}
 		}
@@ -171,7 +177,7 @@ void Ballchasinglog::Render()
 // Name of the menu that is used to toggle the window.
 std::string Ballchasinglog::GetMenuName()
 {
-	return "ballchasing";
+	return "Ballchasing";
 }
 
 // Title to give the menu
@@ -232,6 +238,7 @@ void Ballchasinglog::RenderReplayDetail(ReplayData* detail)
 		RenderTableTab("Boost", guiSettings.boostTableConfig, detail);
 		RenderTableTab("Movement", guiSettings.movementTableConfig, detail);
 		RenderTableTab("Positioning", guiSettings.positioningTableConfig, detail);
+		RenderTableTab("Camera", guiSettings.cameraTableConfig, detail);
 
 		ImGui::EndTabBar();
 	}
@@ -243,10 +250,10 @@ void Ballchasinglog::RenderGroupDetail(GroupData* group)
 	if (ImGui::BeginTabBar("#"))
 	{
 		RenderGroupTab("Overview", guiSettings.groupOverviewTableConfig, group);
-		RenderGroupTab("Core", guiSettings.coreTableConfig, group);
-		RenderGroupTab("Boost", guiSettings.boostTableConfig, group);
-		RenderGroupTab("Movement", guiSettings.movementTableConfig, group);
-		RenderGroupTab("Positioning", guiSettings.positioningTableConfig, group);
+		RenderGroupTab("Core (Avg)", guiSettings.coreTableConfig, group);
+		RenderGroupTab("Boost (Avg)", guiSettings.boostTableConfig, group);
+		RenderGroupTab("Movement (Avg)", guiSettings.movementTableConfig, group);
+		RenderGroupTab("Positioning (Avg)", guiSettings.positioningTableConfig, group);
 
 		ImGui::EndTabBar();
 	}
@@ -280,6 +287,28 @@ void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 		}
 		ImGui::EndPopup();
 	}
+}
+bool Ballchasinglog::ContextMenu(ReplayData* detail, GroupData* parentGroup)
+{
+	if (ImGui::BeginPopupContextItem()) {
+
+		if (ImGui::BeginMenu("Add to group")) {
+			for (auto& groupID : api->topLevelGroups) {
+				if (ImGui::Selectable(groupID.c_str())) {
+					api->AddReplayToGroup(detail->id, groupID);
+				}
+
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::Selectable("Remove from group")) {
+			api->AddReplayToGroup(detail->id, "");
+		}
+
+		ImGui::EndPopup();
+		return true;
+	}
+	return false;
 }
 void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool bBlueHeader, bool bOrangeHeader)
 {

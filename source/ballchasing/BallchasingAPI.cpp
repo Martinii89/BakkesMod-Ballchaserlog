@@ -14,7 +14,6 @@ BallchasingAPI::BallchasingAPI(std::shared_ptr<CVarManagerWrapper> cvar, std::sh
 	latestGroup.subGroupsRequested = RequestState::SUCCESS;
 	topLevelGroups.push_back(latestGroup.id);
 	groupCache_[latestGroup.id] = latestGroup;
-	//cli.set_follow_location(true);
 }
 
 void BallchasingAPI::Ping()
@@ -271,6 +270,33 @@ void BallchasingAPI::GetSubGroups(std::string groupID)
 		else {
 			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
 			cvar_->log("GetSubGroups result was null");
+		}
+		});
+	t.detach();
+}
+
+
+// Call with empty GroupID to remove from group
+void BallchasingAPI::AddReplayToGroup(std::string replayID, std::string groupID)
+{
+	std::thread t([this, replayID, groupID]() {
+		std::string url = "/api/replays/" + replayID;
+		json j;
+		j["group"] = groupID;
+		std::string body = j.dump();
+		auto res = cli.Patch(url.c_str(), GetAuthHeaders(), body, "application/json");
+		if (res && res->status == 204)
+		{
+			if (groupID == "") {
+				gw_->Toast("Ballchasing log", "replay removed from group");
+			}
+			else {
+				gw_->Toast("Ballchasing log", "replay added to group");
+			}
+		}
+		else {
+			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			cvar_->log("GetReplayDetails result was null");
 		}
 		});
 	t.detach();
