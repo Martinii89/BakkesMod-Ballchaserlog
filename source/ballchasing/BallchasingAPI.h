@@ -28,6 +28,7 @@ public:
 	void AddReplayToGroup(std::string replayID, std::string groupID);
 	void AssignReplays(std::string groupId, std::vector<std::string> addReplays, std::vector<std::string> removeReplays);
 	void CreateGroup(std::string groupName, std::string parentGroupId = "");
+	void DeleteGroup(std::string groupID);
 
 	void OnError(std::string message);
 	void OnOk(std::string message);

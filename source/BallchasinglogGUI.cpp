@@ -34,6 +34,7 @@ struct VM {
 	std::string GetSelectedGroupId();
 	std::string GetDetailReplayId();
 	std::string GetDetailReplayLink();
+	std::string GetSelectedGroupLink();
 
 };
 
@@ -125,7 +126,23 @@ void Ballchasinglog::Render()
 
 	if (!replayListCollapsed)
 	{
-		ImGui::Text("Your replay groups"); ImGui::SameLine(ImGui::GetColumnWidth(0) - 25);
+		ImGui::Text("Your replay groups"); 
+		
+		ImGui::SameLine();
+		if (ImGui::Button("Manage groups")) {
+			ImGui::OpenPopup("CreateGroupPopup");
+		}
+		CreateGroupPopup(); 
+
+		ImGui::SameLine();
+		if (ImGui::Button("Copy url##copygroupURL")) {
+			ImGui::SetClipboardText(vm.GetSelectedGroupLink().c_str());
+			ImGui::SameLine();
+			ImGui::Text("Copied");
+		}
+
+
+		ImGui::SameLine(ImGui::GetColumnWidth(0) - 25);
 		if (ImGui::ArrowButton(">>", ImGuiDir_Left)) {
 			replayListCollapsed = true;
 			uncollapseWidth = ImGui::GetColumnWidth(0);
@@ -181,24 +198,21 @@ void Ballchasinglog::Render()
 
 		}
 		ImGui::EndChild();
-		if (ImGui::Button("Clear")) {
-			vm.ClearReplaySelection();
-		}ImGui::SameLine();
+		//if (ImGui::Button("Clear")) {
+		//	vm.ClearReplaySelection();
+		//}ImGui::SameLine();
 		auto btn_lbl = vm.GetSelectedGroupId() == "LATEST" ? "Assign replays" : "Reassign replays";
 		if (ImGui::Button(btn_lbl)) {
 			ImGui::OpenPopup("AssignReplaysPopup");
-		}ImGui::SameLine();
-		if (ImGui::Button("Copy url")) {
+		}
+		AssignReplayPopup(&vm);
+
+		ImGui::SameLine();
+		if (ImGui::Button("Copy url##copyreplayurl")) {
 			ImGui::SetClipboardText(vm.GetDetailReplayLink().c_str());
 			ImGui::SameLine();
 			ImGui::Text("Copied");
 		}
-		AssignReplayPopup(&vm);
-		ImGui::SameLine();
-		if (ImGui::Button("Create group")) {
-			ImGui::OpenPopup("CreateGroupPopup");
-		}
-		CreateGroupPopup();
 	}
 	else {
 		if (ImGui::ArrowButton(">>", ImGuiDir_Right)) {
@@ -353,16 +367,6 @@ void Ballchasinglog::AssignReplayPopup(VM* vm)
 				selectedGroupId = selectedGroup->id;
 			}
 		}
-		//if (GroupSelector())
-		//if (ImGui::BeginMenu(btn_lbl.c_str())) {
-		//	for (auto& groupID : api->topLevelGroups) {
-		//		if (groupID == "LATEST") continue;
-		//		if (ImGui::Selectable(groupID.c_str())) {
-		//			api->AssignReplays(groupID, std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()), {});
-		//		}
-		//	}
-		//	ImGui::EndMenu();
-		//}
 		if (ImGui::Button("Assign")) {
 			api->AssignReplays(selectedGroupId, std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()), {});
 			ImGui::CloseCurrentPopup();
@@ -389,12 +393,6 @@ bool Ballchasinglog::GroupSelector(std::string* groupId) {
 			clicked = true;
 			*groupId = selectedGroup->id;
 		}
-
-
-		//if (ImGui::Selectable(groupID.c_str(), false, ImGuiSelectableFlags_DontClosePopups)) {
-		//	*group = groupID;
-		//	clicked = true;
-		//}
 	}
 	return clicked;
 }
@@ -402,24 +400,48 @@ bool Ballchasinglog::GroupSelector(std::string* groupId) {
 
 void Ballchasinglog::CreateGroupPopup()
 {
+	static bool deleteGroup = false;
+	static bool deleteGroupSure = false;
+	static std::string groupName = "";
+	static std::string parentGroup = "";
 	if (ImGui::BeginPopup("CreateGroupPopup")) {
-
-		static std::string groupName = "";
-		ImGui::InputText("Group name", &groupName);
-		static std::string parentGroup = "";
-		ImGui::InputText("Parent Group", &parentGroup);
-		ImGui::Text("Select Parent group");
+		ImGui::Checkbox("Delete", &deleteGroup);
+		if (!deleteGroup) {
+			ImGui::InputText("Group name", &groupName);
+			ImGui::InputText("Parent Group", &parentGroup);
+			ImGui::Text("Select Parent group");
+		}
+		else {
+			ImGui::InputText("Group to delete", &parentGroup);
+			ImGui::Text("Select Group to delete");
+		}
 		ImGui::Separator();
 		if (GroupSelector(&parentGroup)) {
 			if (parentGroup == "LATEST") parentGroup = "";
 		}
 		ImGui::Separator();
-		if (ImGui::Button("Create")) {
-			api->CreateGroup(groupName, parentGroup);
-			ImGui::CloseCurrentPopup();
+		if (!deleteGroup) {
+			if (ImGui::Button("Create")) {
+				api->CreateGroup(groupName, parentGroup);
+				ImGui::CloseCurrentPopup();
+			}
+		}
+		else {
+			ImGui::Checkbox("You sure?", &deleteGroupSure); ImGui::SameLine();
+			if (ImGui::Button("Delete##deletegroupbutton")) {
+				if (deleteGroupSure) {
+					api->DeleteGroup(parentGroup);
+					ImGui::CloseCurrentPopup();
+				}
+			}
 		}
 
+
 		ImGui::EndPopup();
+	}
+	else {
+		deleteGroup = false;
+		deleteGroupSure = false;
 	}
 }
 
@@ -625,5 +647,15 @@ std::string VM::GetDetailReplayLink()
 	}
 	std::stringstream url;
 	url << "https://ballchasing.com/replay/" << detailReplay->id;
+	return url.str();
+}
+
+std::string VM::GetSelectedGroupLink()
+{
+	if (selectedGroup == nullptr) {
+		return "No group selected";
+	}
+	std::stringstream url;
+	url << "https://ballchasing.com/group/" << selectedGroup->id;
 	return url.str();
 }

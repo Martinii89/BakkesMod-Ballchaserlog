@@ -354,6 +354,23 @@ void BallchasingAPI::CreateGroup(std::string groupName, std::string parentGroupI
 	t.detach();
 }
 
+void BallchasingAPI::DeleteGroup(std::string groupID)
+{
+	std::thread t([this, groupID]() {
+		std::string url = "/api/groups/" + groupID;
+		auto res = cli.Delete(url.c_str(), GetAuthHeaders());
+		if (res && res->status == 204)
+		{
+			OnOk("Group deleted");
+		}
+		else {
+			OnError("Check console for details");
+			cvar_->log("DeleteGroup result was null");
+		}
+		});
+	t.detach();
+}
+
 void BallchasingAPI::OnError(std::string message)
 {
 	gw_->Toast("Ballchasing log", "Error: " + message, "default", 3.5, ToastType_Error);
