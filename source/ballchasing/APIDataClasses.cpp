@@ -18,6 +18,7 @@ void from_json(const nlohmann::json& j, ReplayData& p) {
 	JOPTIONAL2(title, replay_title);
 	JOPTIONAL(status);
 	JOPTIONAL(id);
+	JOPTIONAL(link);
 	JOPTIONAL(blue);
 	JOPTIONAL(orange);
 }

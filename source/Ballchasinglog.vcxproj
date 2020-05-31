@@ -82,7 +82,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir)openssl\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -110,6 +110,7 @@
     <ClCompile Include="imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui\imgui_rangeslider.cpp" />
     <ClCompile Include="imgui\imgui_searchablecombo.cpp" />
+    <ClCompile Include="IMGUI\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_timeline.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="pch.cpp">
@@ -133,6 +134,7 @@
     <ClInclude Include="imgui\imgui_internal.h" />
     <ClInclude Include="imgui\imgui_rangeslider.h" />
     <ClInclude Include="imgui\imgui_searchablecombo.h" />
+    <ClInclude Include="IMGUI\imgui_stdlib.h" />
     <ClInclude Include="imgui\imgui_timeline.h" />
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />

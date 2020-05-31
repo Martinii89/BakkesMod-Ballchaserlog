@@ -108,8 +108,6 @@ GroupData* BallchasingAPI::FindGroupById(std::string groupId, bool& found)
 		return &groupFinder->second;
 	}
 	found = false;
-	//cvar_->log("Failed to find group by ID: " + groupId);
-	//static auto dummyData = GroupData();
 	return nullptr;
 }
 
@@ -183,12 +181,12 @@ void BallchasingAPI::GetTopLevelGroups()
 				OnGetReplayGroupsSuccess(groupList);
 			}
 			catch (const std::exception & e) {
-				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				OnError("Check console for details");
 				cvar_->log(e.what());
 			}
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
 			cvar_->log("GetToplevelGroups result was null");
 		}
 		});
@@ -210,12 +208,12 @@ void BallchasingAPI::GetReplaysForGroup(std::string id)
 				OnGotReplayList(getReplays.replays, id);
 			}
 			catch (const std::exception& e) {
-				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				OnError("Check console for details");
 				cvar_->log(e.what());
 			}
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
 			cvar_->log("GetReplaysForGroup result was null");
 		}
 	});
@@ -234,15 +232,14 @@ void BallchasingAPI::GetGroupStats(std::string id)
 			try {
 				auto groupStats = j.get <GroupData>();
 				OnGotGroupStats(groupStats);
-				cvar_->log("got grup stats");
 			}
 			catch (const std::exception & e) {
-				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				OnError("Check console for details");
 				cvar_->log(e.what());
 			}
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
 			cvar_->log("GetGroupStats result was null");
 		}
 		});
@@ -263,12 +260,13 @@ void BallchasingAPI::GetSubGroups(std::string groupID)
 				OnGetReplayGroupsSuccess(groupList, groupID);
 			}
 			catch (const std::exception & e) {
-				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+				OnError("Check console for details");
 				cvar_->log(e.what());
 			}
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
+			
 			cvar_->log("GetSubGroups result was null");
 		}
 		});
@@ -288,18 +286,82 @@ void BallchasingAPI::AddReplayToGroup(std::string replayID, std::string groupID)
 		if (res && res->status == 204)
 		{
 			if (groupID == "") {
-				gw_->Toast("Ballchasing log", "replay removed from group");
+				OnOk("Replay removed from group");
 			}
 			else {
-				gw_->Toast("Ballchasing log", "replay added to group");
+				OnOk("Replay added to group");
 			}
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
 			cvar_->log("GetReplayDetails result was null");
 		}
 		});
 	t.detach();
+}
+
+void BallchasingAPI::AssignReplays(std::string groupId, std::vector<std::string> addReplays, std::vector<std::string> removeReplays)
+{
+	std::thread t([this, groupId, addReplays, removeReplays]() {
+		std::string url = "/api/groups/" + groupId;
+		json j;
+		j["assign_replays"] = addReplays;
+		j["unassign_replays"] = removeReplays;
+		std::string body = j.dump();
+		auto res = cli.Patch(url.c_str(), GetAuthHeaders(), body, "application/json");
+		if (res && res->status == 204)
+		{
+			OnOk("Group updated. Please give the server some processing time before you request the group");
+		}
+		else {
+			OnError("Check console for details");
+			cvar_->log("AssignReplays result was null");
+		}
+		});
+	t.detach();
+}
+
+void BallchasingAPI::CreateGroup(std::string groupName, std::string parentGroupId)
+{
+	std::thread t([this, groupName, parentGroupId]() {
+		bool subGroup = false;
+		std::string url = "/api/groups";
+		json j;
+		j["name"] = groupName;
+		if (!parentGroupId.empty()) {
+			j["parent"] = parentGroupId;
+			subGroup = true;
+		}
+		j["player_identification"] = "by-id";
+		j["team_identification"] = "by-distinct-players";
+		std::string body = j.dump();
+		auto res = cli.Post(url.c_str(), GetAuthHeaders(), body, "application/json");
+		if (res && res->status == 201)
+		{
+			OnOk("Group created. Refreshing grups");
+			if (subGroup) {
+				gw_->SetTimeout([this, parentGroupId](GameWrapper* gw) {GetSubGroups(parentGroupId); }, 1.0);
+			}
+			else {
+				gw_->SetTimeout([this](GameWrapper* gw) {GetTopLevelGroups(); }, 1.0);
+			}
+		}
+		else {
+			OnError("Check console for details");
+			cvar_->log("CreateGroup result was null");
+		}
+		});
+	t.detach();
+}
+
+void BallchasingAPI::OnError(std::string message)
+{
+	gw_->Toast("Ballchasing log", "Error: " + message, "default", 3.5, ToastType_Error);
+}
+
+void BallchasingAPI::OnOk(std::string message)
+{
+	gw_->Toast("Ballchasing log", message, "default", 3.5, ToastType_OK);
 }
 
 void BallchasingAPI::GetReplayDetails(std::string id)
@@ -313,34 +375,18 @@ void BallchasingAPI::GetReplayDetails(std::string id)
 		{
 			json j = json::parse(res->body);
 			std::string status = j["status"].get<std::string>();
-			if (status == "ok") {
 
-				try {
-					std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-					auto replayDetails = j.get<ReplayData>();
-					std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-					auto dt = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
-					//cvar_->log("Replay details parsed in : " + std::to_string(dt) + "[micro seconds]");
-					OnReplayDetailsSuccess(replayDetails);
-				}
-				catch (const std::exception & e) {
-					gw_->Toast("Ballchasing log", "ERROR! Check console for details");
-					//gw_->Toast("Ballchasing parse error", e.what(), "default", 10);
-					cvar_->log(e.what());
-				}	
+			try {
+				auto replayDetails = j.get<ReplayData>();
+				OnReplayDetailsSuccess(replayDetails);
 			}
-			else if (status == "pending")
-			{
-				//retry
-				
-				GetReplayDetails(id);
-			}
-			else {
-				//Failed replay. fail silenty for now
-			}
+			catch (const std::exception & e) {
+				OnError("Check console for details");
+				cvar_->log(e.what());
+			}	
 		}
 		else {
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+			OnError("Check console for details");
 			cvar_->log("GetReplayDetails result was null");
 		}
 		});

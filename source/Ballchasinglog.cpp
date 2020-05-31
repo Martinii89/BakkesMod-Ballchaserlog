@@ -3,7 +3,7 @@
 
 using namespace std::placeholders;
 
-BAKKESMOD_PLUGIN(Ballchasinglog, "Examine Ballchasing stats without leave the game", plugin_version, PLUGINTYPE_FREEPLAY)
+BAKKESMOD_PLUGIN(Ballchasinglog, "Ballchasinglog", plugin_version, PLUGINTYPE_FREEPLAY)
 
 
 void Ballchasinglog::onLoad()

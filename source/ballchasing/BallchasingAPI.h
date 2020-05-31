@@ -26,6 +26,11 @@ public:
 	void GetGroupStats(std::string id);
 	void GetSubGroups(std::string groupID);
 	void AddReplayToGroup(std::string replayID, std::string groupID);
+	void AssignReplays(std::string groupId, std::vector<std::string> addReplays, std::vector<std::string> removeReplays);
+	void CreateGroup(std::string groupName, std::string parentGroupId = "");
+
+	void OnError(std::string message);
+	void OnOk(std::string message);
 
 	// Get cached results
 	ReplayData GetCachedReplayDetail(std::string replayID, std::string groupID);

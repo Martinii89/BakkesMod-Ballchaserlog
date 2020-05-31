@@ -87,6 +87,9 @@
     <ClCompile Include="GUISettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IMGUI\imgui_stdlib.cpp">
+      <Filter>imgui\implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ballchasinglog.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="GUISettings.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_stdlib.h">
+      <Filter>imgui\headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

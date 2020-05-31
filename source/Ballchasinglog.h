@@ -5,7 +5,9 @@
 #include "ballchasing/BallchasingAPI.h"
 #include "GUISettings.h"
 
-constexpr auto plugin_version = "1.0";
+constexpr auto plugin_version = "1.1";
+
+struct VM;
 
 class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
@@ -20,10 +22,12 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
-	std::string menuTitle_ = "Ballchasing.com - Log";
+	std::string menuTitle_ = "Ballchasing.com - Log (" + std::string(plugin_version) + ")";
 	GUISettings guiSettings;
 
 	void RenderGroup(GroupData* group, GroupData** selectedGroup);
+	bool RenderGroupSelector(GroupData* group, GroupData** selectedGroup);
+
 
 	virtual void Render() override;
 	virtual std::string GetMenuName() override;
@@ -37,7 +41,9 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	void OnReplayGroupChange(std::string link);
 	void RenderReplayDetail(ReplayData* detail);
 	void RenderGroupDetail(GroupData* group);
-
+	void AssignReplayPopup(VM* vm);
+	bool GroupSelector(std::string* group);
+	void CreateGroupPopup();
 	void ContextMenu(std::vector<TableColumn>& columnData);
 	bool ContextMenu(ReplayData* detail, GroupData* parentGroup);
 	void RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool blueHeader = true, bool orangeHeader = true );

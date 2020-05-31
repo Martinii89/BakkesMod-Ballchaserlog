@@ -170,6 +170,7 @@ struct ReplayData
 {
 	std::string replay_title;
 	std::string id;
+	std::string link;
 	std::string status;
 
 	Team blue;
