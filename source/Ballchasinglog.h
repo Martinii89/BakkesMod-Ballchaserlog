@@ -15,10 +15,12 @@ struct VM;
 class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginWindow
 {
 
+	
 #pragma region Boilerplate
 	//Boilerplate
 	void onLoad() override;
 	void onUnload() override;
+
 	
 	bool isWindowOpen_ = false;
 	bool isMinimized_ = false;
