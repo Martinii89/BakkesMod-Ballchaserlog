@@ -22,15 +22,6 @@
     <Filter Include="imgui\implementation">
       <UniqueIdentifier>{d46c4711-0bdc-484c-bb4c-5526d80f7f5e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="http">
-      <UniqueIdentifier>{7c36d65b-cfc2-41f0-93bd-a6e33dbad1e4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="json">
-      <UniqueIdentifier>{ca12e875-df3b-457a-a4c9-6feb73cf304a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ballchasing">
-      <UniqueIdentifier>{638774b4-5261-4256-927a-9fb219f2a920}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ballchasinglog.cpp">
@@ -75,20 +66,23 @@
     <ClCompile Include="BallchasinglogGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="http\httplib.cc">
-      <Filter>http</Filter>
+    <ClCompile Include="fmt\src\format.cc">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ballchasing\BallchasingAPI.cpp">
-      <Filter>ballchasing</Filter>
-    </ClCompile>
-    <ClCompile Include="ballchasing\APIDataClasses.cpp">
-      <Filter>ballchasing</Filter>
-    </ClCompile>
-    <ClCompile Include="GUISettings.cpp">
+    <ClCompile Include="fmt\src\os.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui_stdlib.cpp">
-      <Filter>imgui\implementation</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ballchasing\APIDataClasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ballchasing\BallchasingAPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUISettings.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,23 +131,31 @@
     <ClInclude Include="imgui\imgui_internal.h">
       <Filter>imgui\headers</Filter>
     </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="json\json.hpp">
-      <Filter>json</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="http\httplib.h">
-      <Filter>http</Filter>
+    <ClInclude Include="json\json_macro.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ballchasing\BallchasingAPI.h">
-      <Filter>ballchasing</Filter>
+    <ClInclude Include="IMGUI\imgui_stdlib.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ballchasing\APIDataClasses.h">
-      <Filter>ballchasing</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ballchasing\BallchasingAPI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUISettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IMGUI\imgui_stdlib.h">
-      <Filter>imgui\headers</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Ballchasinglog.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
