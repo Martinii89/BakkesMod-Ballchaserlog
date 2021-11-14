@@ -47,7 +47,7 @@ std::string Ballchasinglog::GetMenuName()
 // Title to give the menu
 std::string Ballchasinglog::GetMenuTitle()
 {
-	return menuTitle_;
+	return menu_title_;
 }
 
 // Don't call this yourself, BM will call this function with a pointer to the current ImGui context
@@ -94,7 +94,7 @@ void Ballchasinglog::Render()
 	//const std::string DEFAULT_GROUP_NAME = "Your latest replays";
 	ImGui::SetNextWindowSize({800, 400}, ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin(menuTitle_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
+	if (!ImGui::Begin(menu_title_.c_str(), &isWindowOpen_, ImGuiWindowFlags_None))
 	{
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
