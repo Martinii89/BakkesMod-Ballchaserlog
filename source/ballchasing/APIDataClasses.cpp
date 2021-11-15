@@ -15,7 +15,7 @@
 //
 //void from_json(const nlohmann::json& j, ReplayData& p) {
 //	JOPTIONAL(replay_title)
-//	JOPTIONAL2(title, replay_title)
+//	JOPTIONAL2(title, replay_title) // done
 //	JOPTIONAL(status)
 //	JOPTIONAL(id)
 //	JOPTIONAL(link)
@@ -25,7 +25,7 @@
 //
 //void from_json(const nlohmann::json& j, GetReplaysResponse& p) {
 //	JOPTIONAL(count)
-//	JOPTIONAL2(list, replays)
+//	JOPTIONAL2(list, replays) // done
 //}
 //
 //
@@ -61,8 +61,8 @@
 //	JOPTIONAL(id)
 //	JOPTIONAL(name)
 //	JOPTIONAL(team)
-//	JOPTIONAL2(cumulative, cumulative_stats)
-//	JOPTIONAL2(game_average, stats)
+//	JOPTIONAL2(cumulative, cumulative_stats) //done
+//	JOPTIONAL2(game_average, stats) // done
 //}
 //
 //

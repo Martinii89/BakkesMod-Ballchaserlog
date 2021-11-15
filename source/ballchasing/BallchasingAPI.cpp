@@ -2,11 +2,13 @@
 #include <thread>
 #include <utility>
 #include "../json/json.hpp"
+
+#include <fstream>
 using json = nlohmann::json;
 #include "BallchasingAPI.h"
 #include "APIDataClasses.h"
 
-BallchasingAPI::BallchasingAPI(std::shared_ptr<CVarManagerWrapper> cvar, std::shared_ptr<GameWrapper> gw):
+BallchasingAPI::BallchasingAPI(std::shared_ptr<CVarManagerWrapper> cvar, std::shared_ptr<GameWrapper> gw) :
 	cvar_(std::move(cvar)), gw_(std::move(gw))
 {
 	auto latestGroup = GroupData();
@@ -31,6 +33,25 @@ CurlRequest BallchasingAPI::GetRequestBase(const std::string_view path, const st
 	return req;
 }
 
+void BallchasingAPI::DefaultOnError(int code, const std::string& msg) const
+{
+	gw_->Toast("Ballchasing log", "ERROR! Check console for details");
+	cvar_->log(msg);
+}
+
+bool BallchasingAPI::WriteJsonToDebugFile(const json& j, const std::string& endpoint_name) const
+{
+	const auto path = gw_->GetDataFolder() / "ballchasinglog" / (endpoint_name + ".json");
+	create_directories(path.parent_path());
+	if (auto out = std::ofstream(path))
+	{
+		out << j.dump(4);
+		LOG("Written json for {} to file", endpoint_name);
+		return true;
+	}
+	return false;
+}
+
 void BallchasingAPI::Ping()
 {
 	gw_->Toast("Ballchasing log", "pinging the Ballchasing API. Check console for results");
@@ -46,30 +67,110 @@ void BallchasingAPI::Ping()
 void BallchasingAPI::GetLastMatches()
 {
 	gw_->Toast("Ballchasing log", "Fetching your most recent replays");
-	const CurlRequestDoneStringReturn on_done = [this](int http_code, const std::string& res)
+
+	auto on_done = [this](const json& j, GetReplaysResponse& data)
 	{
-		if (http_code == 200)
+		LOG("Count: {}, list length: {}", data.count, data.list.size());
+		if (!WriteJsonToDebugFile(j, "last_replays"))
 		{
-			json j = json::parse(res.begin(), res.end());
-			try
-			{
-				const auto get_replays_response = j.get<GetReplaysResponse>();
-				OnGotReplayList(get_replays_response.replays, "LATEST");
-			}
-			catch (const std::exception& e)
-			{
-				gw_->Toast("Ballchasing log", "ERROR! Check console for details");
-				cvar_->log(e.what());
-			}
+			DefaultOnError(0, "Failed writing debug file for last_replays");
 		}
-		else
-		{
-			gw_->Toast("Ballchasing log", "ERROR! Check console for details");
-			cvar_->log("GetLastMatches result was null");
-		}
+		OnGotReplayList(data.list, "LATEST");
 	};
-	const CurlRequest req = GetRequestBase("api/replays?uploader=me", "GET");
-	HttpWrapper::SendCurlRequest(req, on_done);
+	const JsonRequest<GetReplaysResponse> json_req{
+		GetRequestBase("api/replays?uploader=me", "GET"),
+	std::move(on_done) };
+	RequestJson(json_req);
+}
+
+void BallchasingAPI::GetReplayDetails(const std::string& id)
+{
+	auto on_done = [this, id](const json& j, const ReplayData& data)
+	{
+		if (!WriteJsonToDebugFile(j, fmt::format("replay_details_{}", id)))
+		{
+			DefaultOnError(0, fmt::format("Failed writing debug file for replay_details_{}", id));
+		}
+		OnReplayDetailsSuccess(data);
+	};
+	const JsonRequest<ReplayData> json_request
+	{
+		 GetRequestBase("api/replays/" + id, "GET"),
+		on_done
+	};
+	RequestJson(json_request);
+}
+
+void BallchasingAPI::GetTopLevelGroups()
+{
+	auto on_done = [this](const json& j, const GetReplayGroupsResponseData& data)
+	{
+		if (!WriteJsonToDebugFile(j, "top_groups"))
+		{
+			DefaultOnError(0, "Failed writing debug file for top_groups");
+		}
+		OnGetReplayGroupsSuccess(data);
+	};
+	const JsonRequest<GetReplayGroupsResponseData> json_req
+	{
+		GetRequestBase("api/groups?creator=me", "GET"),
+		on_done
+	};
+	RequestJson(json_req);
+}
+
+void BallchasingAPI::GetSubGroups(const std::string& groupID)
+{
+	auto on_done = [this, groupID](const json& j, const GetReplayGroupsResponseData& data)
+	{
+		if (!WriteJsonToDebugFile(j, fmt::format("group_subgroups_{}", groupID)))
+		{
+			DefaultOnError(0, fmt::format("Failed writing debug file for group_subgroups_{}", groupID));
+		}
+		OnGetReplayGroupsSuccess(data, groupID);
+	};
+	const JsonRequest<GetReplayGroupsResponseData> json_request
+	{
+		 GetRequestBase("api/groups?group=" + groupID, "GET"),
+		on_done
+	};
+	RequestJson(json_request);
+}
+
+void BallchasingAPI::GetReplaysForGroup(const std::string& id)
+{
+	auto on_done2 = [this, id](const json j, const GetReplaysResponse& data)
+	{
+		if (!WriteJsonToDebugFile(j, fmt::format("group_replays_{}", id)))
+		{
+			DefaultOnError(0, fmt::format("Failed writing debug file for group_replays_{}", id));
+		}
+		OnGotReplayList(data.list, id);
+	};
+	const JsonRequest<GetReplaysResponse> json_req
+	{
+		GetRequestBase("api/replays?group=" + id, "GET"),
+		on_done2
+	};
+	RequestJson(json_req);
+}
+
+void BallchasingAPI::GetGroupStats(const std::string& id)
+{
+	auto on_done = [this, id](const json& j, const GroupData& data)
+	{
+		if (!WriteJsonToDebugFile(j, fmt::format("group_stats_{}", id)))
+		{
+			DefaultOnError(0, fmt::format("Failed writing debug file for group_stats_{}", id));
+		}
+		OnGotGroupStats(data);
+	};
+	const JsonRequest<GroupData> json_request
+	{
+		GetRequestBase("api/groups/" + id, "GET"),
+		on_done
+	};
+	RequestJson(json_request);
 }
 
 ReplayData BallchasingAPI::GetTemporaryOverviewData(const std::string& replay_id, std::string group_id)
@@ -186,122 +287,6 @@ GroupData* BallchasingAPI::GetCachedGroup(std::string id)
 	return group;
 }
 
-void BallchasingAPI::GetTopLevelGroups()
-{
-	const CurlRequestDoneStringReturn on_done = [this](int http_code, const std::string& res)
-	{
-		if (http_code == 200)
-		{
-			try
-			{
-				const json j = json::parse(res.begin(), res.end());
-				const auto group_list = j.get<GetReplayGroupsResponseData>();
-				OnGetReplayGroupsSuccess(group_list);
-			}
-			catch (const std::exception& e)
-			{
-				OnError("Check console for details");
-				cvar_->log(e.what());
-			}
-		}
-		else
-		{
-			OnError("Check console for details");
-			cvar_->log("GetToplevelGroups result was null");
-		}
-	};
-	const CurlRequest req = GetRequestBase("api/groups?creator=me", "GET");
-	HttpWrapper::SendCurlRequest(req, on_done);
-}
-
-void BallchasingAPI::GetReplaysForGroup(const std::string& id)
-{
-	const CurlRequestDoneStringReturn on_done = [this, id](int http_code, const std::string& res)
-	{
-		if (http_code == 200)
-		{
-			try
-			{
-				json j = json::parse(res.begin(), res.end());
-				const auto getReplays = j.get<GetReplaysResponse>();
-				//OnGroupListChanged(getReplays);
-				OnGotReplayList(getReplays.replays, id);
-			}
-			catch (const std::exception& e)
-			{
-				OnError("Check console for details");
-				cvar_->log(e.what());
-			}
-		}
-		else
-		{
-			OnError("Check console for details");
-			cvar_->log("GetReplaysForGroup result was null");
-		}
-	};
-	const CurlRequest req = GetRequestBase("api/replays?group=" + id, "GET");
-	HttpWrapper::SendCurlRequest(req, on_done);
-}
-
-void BallchasingAPI::GetGroupStats(const std::string& id)
-{
-	const CurlRequestDoneStringReturn on_done = [this](int http_code, const std::string& res)
-	{
-		if (http_code == 200)
-		{
-			try
-			{
-				const json j = json::parse(res.begin(), res.end());
-				const auto group_stats = j.get<GroupData>();
-				OnGotGroupStats(group_stats);
-			}
-			catch (const std::exception& e)
-			{
-				OnError("Check console for details");
-				cvar_->log(e.what());
-			}
-		}
-		else
-		{
-			OnError("Check console for details");
-			cvar_->log("GetGroupStats result was null");
-		}
-	};
-	const CurlRequest req = GetRequestBase("api/groups/" + id, "GET");
-	HttpWrapper::SendCurlRequest(req, on_done);
-}
-
-void BallchasingAPI::GetSubGroups(const std::string& groupID)
-{
-	const CurlRequestDoneStringReturn on_done = [this, groupID](int http_code, const std::string& res)
-	{
-		if (http_code == 200)
-		{
-			json j = json::parse(res.begin(), res.end());
-
-			try
-			{
-				auto groupList = j.get<GetReplayGroupsResponseData>();
-				OnGetReplayGroupsSuccess(groupList, groupID);
-			}
-			catch (const std::exception& e)
-			{
-				OnError("Check console for details");
-				cvar_->log(e.what());
-			}
-		}
-		else
-		{
-			OnError("Check console for details");
-
-			cvar_->log("GetSubGroups result was null");
-		}
-	};
-	const CurlRequest req = GetRequestBase("api/groups?group=" + groupID, "GET");
-	HttpWrapper::SendCurlRequest(req, on_done);
-}
-
-
 // Call with empty GroupID to remove from group
 void BallchasingAPI::AddReplayToGroup(const std::string& replayID, const std::string& groupID)
 {
@@ -334,8 +319,8 @@ void BallchasingAPI::AddReplayToGroup(const std::string& replayID, const std::st
 }
 
 void BallchasingAPI::AssignReplays(const std::string& groupId, const std::vector<std::string>& addReplays,
-                                   const std::vector<std::string>
-                                   & removeReplays)
+	const std::vector<std::string>
+	& removeReplays)
 {
 	const CurlRequestDoneStringReturn on_done = [this](int http_code, const std::string& res)
 	{
@@ -426,48 +411,21 @@ void BallchasingAPI::OnOk(std::string message)
 	gw_->Toast("Ballchasing log", std::move(message), "default", 3.5, ToastType_OK);
 }
 
-void BallchasingAPI::GetReplayDetails(const std::string& id)
-{
-	const CurlRequestDoneStringReturn on_done = [this](int http_code, const std::string& res)
-	{
-		if (http_code == 200)
-		{
-			try
-			{
-				const json j = json::parse(res.begin(), res.end());
-				const auto replay_details = j.get<ReplayData>();
-				OnReplayDetailsSuccess(replay_details);
-			}
-			catch (const std::exception& e)
-			{
-				OnError("Check console for details");
-				cvar_->log(e.what());
-			}
-		}
-		else
-		{
-			OnError("Check console for details");
-			cvar_->log("GetReplayDetails result was null");
-		}
-	};
 
-	const CurlRequest req = GetRequestBase("api/replays/" + id, "GET");
-	HttpWrapper::SendCurlJsonRequest(req, on_done);
-}
 
 void BallchasingAPI::OnReplayDetailsSuccess(ReplayData details)
 {
 	// Fix some inconsistent stuff for the api.
 	for (auto& p : details.blue.players)
 	{
-		p.score = p.stats.core.score;
-		details.blue.goals += p.stats.core.goals;
+		p.score = p.game_average.core.score;
+		details.blue.goals += p.game_average.core.goals;
 	}
 	if (details.blue.name.empty()) details.blue.name = "Blue";
 	for (auto& p : details.orange.players)
 	{
-		p.score = p.stats.core.score;
-		details.orange.goals += p.stats.core.goals;
+		p.score = p.game_average.core.score;
+		details.orange.goals += p.game_average.core.goals;
 	}
 	if (details.orange.name.empty()) details.orange.name = "Orange";
 
@@ -487,5 +445,5 @@ void BallchasingAPI::OnReplayDetailsSuccess(ReplayData details)
 std::map<std::string, std::string> BallchasingAPI::GetAuthHeaders()
 {
 	std::string authKey = cvar_->getCvar("cl_autoreplayupload_ballchasing_authkey").getStringValue();
-	return {{"Authorization", authKey}};
+	return { {"Authorization", authKey} };
 }
