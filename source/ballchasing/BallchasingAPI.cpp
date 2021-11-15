@@ -71,7 +71,7 @@ void BallchasingAPI::GetLastMatches()
 	auto on_done = [this](const json& j, GetReplaysResponse& data)
 	{
 		LOG("Count: {}, list length: {}", data.count, data.list.size());
-		if (!WriteJsonToDebugFile(j, "last_replays"))
+		if (!WriteJsonAndParsedToDebugFile(j, data, "last_replays"))
 		{
 			DefaultOnError(0, "Failed writing debug file for last_replays");
 		}
@@ -87,7 +87,7 @@ void BallchasingAPI::GetReplayDetails(const std::string& id)
 {
 	auto on_done = [this, id](const json& j, const ReplayData& data)
 	{
-		if (!WriteJsonToDebugFile(j, fmt::format("replay_details_{}", id)))
+		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("replay_details_{}", id)))
 		{
 			DefaultOnError(0, fmt::format("Failed writing debug file for replay_details_{}", id));
 		}
@@ -105,7 +105,7 @@ void BallchasingAPI::GetTopLevelGroups()
 {
 	auto on_done = [this](const json& j, const GetReplayGroupsResponseData& data)
 	{
-		if (!WriteJsonToDebugFile(j, "top_groups"))
+		if (!WriteJsonAndParsedToDebugFile(j, data, "top_groups"))
 		{
 			DefaultOnError(0, "Failed writing debug file for top_groups");
 		}
@@ -123,7 +123,7 @@ void BallchasingAPI::GetSubGroups(const std::string& groupID)
 {
 	auto on_done = [this, groupID](const json& j, const GetReplayGroupsResponseData& data)
 	{
-		if (!WriteJsonToDebugFile(j, fmt::format("group_subgroups_{}", groupID)))
+		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("group_subgroups_{}", groupID)))
 		{
 			DefaultOnError(0, fmt::format("Failed writing debug file for group_subgroups_{}", groupID));
 		}
@@ -141,7 +141,7 @@ void BallchasingAPI::GetReplaysForGroup(const std::string& id)
 {
 	auto on_done2 = [this, id](const json j, const GetReplaysResponse& data)
 	{
-		if (!WriteJsonToDebugFile(j, fmt::format("group_replays_{}", id)))
+		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("group_replays_{}", id)))
 		{
 			DefaultOnError(0, fmt::format("Failed writing debug file for group_replays_{}", id));
 		}
@@ -159,7 +159,7 @@ void BallchasingAPI::GetGroupStats(const std::string& id)
 {
 	auto on_done = [this, id](const json& j, const GroupData& data)
 	{
-		if (!WriteJsonToDebugFile(j, fmt::format("group_stats_{}", id)))
+		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("group_stats_{}", id)))
 		{
 			DefaultOnError(0, fmt::format("Failed writing debug file for group_stats_{}", id));
 		}

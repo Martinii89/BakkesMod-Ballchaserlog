@@ -26,8 +26,9 @@ public:
 	void GetGroupStats(const std::string& id);
 	void GetSubGroups(const std::string& groupID);
 	void AddReplayToGroup(const std::string& replayID, const std::string& groupID);
-	void AssignReplays(const std::string& groupId, const std::vector<std::string>& addReplays, const std::vector<std::string>
-		& removeReplays);
+	void AssignReplays(const std::string& groupId, const std::vector<std::string>& addReplays,
+	                   const std::vector<std::string>
+	                   & removeReplays);
 	void CreateGroup(const std::string& groupName, const std::string& parentGroupId = "");
 	void DeleteGroup(const std::string& groupID);
 
@@ -62,6 +63,10 @@ private:
 	void DefaultOnError(int code, const std::string& msg) const;
 	[[nodiscard]] bool WriteJsonToDebugFile(const json& j, const std::string& endpoint_name) const;
 
+	template <typename JsonParsedType>
+	[[nodiscard]] bool WriteJsonAndParsedToDebugFile(const json& j, const JsonParsedType& parsed,
+	                                                 const std::string& endpoint_name) const;
+
 	template <typename JsonType>
 	struct JsonRequest
 	{
@@ -75,35 +80,64 @@ private:
 	void RequestJson(const JsonRequest<JsonType>& req);
 };
 
+template <typename JsonParsedType>
+bool BallchasingAPI::WriteJsonAndParsedToDebugFile(const json& j, const JsonParsedType& parsed,
+                                                   const std::string& endpoint_name) const
+{
+	const auto path = gw_->GetDataFolder() / "ballchasinglog" / fmt::format("{}.json", endpoint_name);;
+	const auto path_parsed = gw_->GetDataFolder() / "ballchasinglog" / fmt::format("{}_parsed.json", endpoint_name);
+	create_directories(path.parent_path());
+	try
+	{
+		if (auto out = std::ofstream(path_parsed))
+		{
+			json j = parsed;
+			out << j.dump(4);
+		}
+	}
+	catch (...)
+	{
+		return false;
+	}
+	if (auto out = std::ofstream(path))
+	{
+		out << j.dump(4);
+		LOG("Written json for {} to file", endpoint_name);
+		return true;
+	}
+	return false;
+}
+
 template <typename JsonType>
 void BallchasingAPI::RequestJson(const JsonRequest<JsonType>& req)
 {
 	HttpWrapper::SendCurlRequest(req.req, [this, req](int http_code, const std::string& res)
+	{
+		auto on_error = req.on_error
+			                ? req.on_error
+			                : [this](const int code, const std::string msg)
+			                {
+				                DefaultOnError(code, msg);
+			                };
+		if (http_code != req.expected_http_code)
 		{
-			auto on_error = req.on_error ? req.on_error : [this](const int code, const std::string msg)
-			{
-				DefaultOnError(code, msg);
-			};
-			if (http_code != req.expected_http_code)
-			{
-				on_error(http_code, "Wrong http response code");
-				return;
-			}
-			try
-			{
-				json j = json::parse(res.begin(), res.end());
-				auto parsed = j.get<JsonType>();
-				req.on_success(j, parsed);
-				return;
-			}
-			catch (std::exception& e)
-			{
-				on_error(http_code, e.what());
-			}
-			catch (...)
-			{
-				on_error(http_code, "Unknown exception");
-			}
-
-		});
+			on_error(http_code, "Wrong http response code");
+			return;
+		}
+		try
+		{
+			json j = json::parse(res.begin(), res.end());
+			auto parsed = j.get<JsonType>();
+			req.on_success(j, parsed);
+			return;
+		}
+		catch (std::exception& e)
+		{
+			on_error(http_code, e.what());
+		}
+		catch (...)
+		{
+			on_error(http_code, "Unknown exception");
+		}
+	});
 }
