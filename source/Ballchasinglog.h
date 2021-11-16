@@ -39,19 +39,19 @@ class Ballchasinglog: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	std::shared_ptr<BallchasingAPI> api_;
 	GUISettings gui_settings_;
 
-	void RenderGroup(GroupData* group, GroupData** selectedGroup);
-	bool RenderGroupSelector(GroupData* group, GroupData** selectedGroup);
+	void RenderGroup(GroupList::GroupData* group, GroupList::GroupData** selectedGroup);
+	bool RenderGroupSelector(GroupList::GroupData* group, GroupList::GroupData** selectedGroup);
 
 	void OnReplayGroupChange(std::string link);
 	void RenderReplayDetail(ReplayData* detail);
-	void RenderGroupDetail(GroupData* group);
+	void RenderGroupDetail(GroupList::GroupData* group);
 	void AssignReplayPopup(VM* vm);
 	bool GroupSelector(std::string* group);
 	void CreateGroupPopup();
 	void ContextMenu(std::vector<TableColumn>& columnData);
 	bool ContextMenu(ReplayData* detail, GroupData* parentGroup);
 	void RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool blueHeader = true, bool orangeHeader = true );
-	void RenderGroupTab(std::string name, TableSettings& settings, GroupData* detail);
+	void RenderGroupTab(std::string name, TableSettings& settings, GroupList::GroupData* detail);
 	void RenderTeamTable(Team& t, TableSettings& settings, bool drawHeader = true);
 	void RenderPlayerRow(BaseStatPlayer& p, TableSettings& settings);
 };

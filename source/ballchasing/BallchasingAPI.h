@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "APIDataClasses.h"
+#include "ApiRequestStructs.h"
 #include "bakkesmod/wrappers/cvarmanagerwrapper.h"
 
 class GameWrapper;
@@ -16,49 +17,51 @@ public:
 	std::vector<std::string> topLevelGroups;
 
 	// API calls
-	void Ping();
-	void GetLastMatches();
-	void GetReplayDetails(const std::string& id);
+	void Ping() const;
+	void GetLastMatches() const;
+	void GetReplayDetails(const std::string_view id);
 
 	// Group stuff
-	void GetTopLevelGroups();
-	void GetReplaysForGroup(const std::string& id);
-	void GetGroupStats(const std::string& id);
-	void GetSubGroups(const std::string& groupID);
-	void AddReplayToGroup(const std::string& replayID, const std::string& groupID);
-	void AssignReplays(const std::string& groupId, const std::vector<std::string>& addReplays,
-	                   const std::vector<std::string>
-	                   & removeReplays);
-	void CreateGroup(const std::string& groupName, const std::string& parentGroupId = "");
-	void DeleteGroup(const std::string& groupID);
+	void GetGroups(const GetGroupsParms& params, const std::function<void(json& j,const GroupList& groups)>& on_success) const;
+	void GetGroupStats(const std::string_view id) const;
+	void GetReplaysForGroup(const std::string_view id) const;
 
-	void OnError(const std::string& message);
-	void OnOk(std::string message);
+	void GetTopLevelGroups();
+	void GetSubGroups(const std::string_view group_id) const;
+	void AddReplayToGroup(const std::string_view replay_id, const std::string_view group_id) const;
+	void AssignReplays(const std::string_view group_id, const std::vector<std::string>& addReplays,
+	                   const std::vector<std::string>
+	                   & removeReplays) const;
+	void CreateGroup(const std::string& groupName, const std::string& parentGroupId = "");
+	void DeleteGroup(const std::string& groupID) const;
+
+	void OnError(const std::string& message) const;
+	void OnOk(std::string message) const;
 
 	// Get cached results
-	ReplayData GetCachedReplayDetail(const std::string& replayID, std::string groupID);
-	GroupData* GetCachedGroup(std::string id);
+	ReplayData GetCachedReplayDetail(const std::string_view replay_id, const std::string_view group_id);
+	GroupList::GroupData* GetCachedGroup(std::string_view id);
 
 private:
-	std::map<std::string, ReplayData> replay_details_cache_;
-	std::map<std::string, GroupData> group_cache_;
+	std::map<std::string, ReplayData, std::less<>> replay_details_cache_;
+	std::map<std::string, GroupList::GroupData, std::less<>> group_cache_;
 	std::shared_ptr<CVarManagerWrapper> cvar_;
 	std::shared_ptr<GameWrapper> gw_;
 
-	ReplayData GetTemporaryOverviewData(const std::string& replay_id, std::string group_id);
+	ReplayData GetTemporaryOverviewData(const std::string_view replay_id, const std::string_view group_id);
 
-	std::map<std::string, std::string> GetAuthHeaders();
+	[[nodiscard]] std::map<std::string, std::string> GetAuthHeaders() const;
 	// API response callbacks 
-	void OnGetReplayGroupsSuccess(const GetReplayGroupsResponseData& res, const std::string& parent_group = "");
+	void OnGetReplayGroupsSuccess(const GroupList& res, std::string_view parent_group = "");
 	void OnReplayDetailsSuccess(ReplayData details);
 
-	void OnGotReplayList(std::vector<ReplayData> replay_list, const std::string& group_id);
+	void OnGotReplayList(std::vector<ReplayData> replay_list, std::string_view group_id);
 	void OnGotGroupStats(const GroupData& data);
 
-	GroupData* FindGroupById(const std::string& group_id, bool& found);
+	GroupList::GroupData* FindGroupById(std::string_view group_id, bool& found);
 
 	inline static constexpr std::string_view api_root = "ballchasing.com";
-	CurlRequest GetRequestBase(std::string_view path, std::string_view http_verb);
+	[[nodiscard]] CurlRequest GetRequestBase(std::string_view path, std::string_view http_verb) const;
 
 	void DefaultOnError(int code, const std::string& msg) const;
 	[[nodiscard]] bool WriteJsonToDebugFile(const json& j, const std::string& endpoint_name) const;
@@ -77,7 +80,7 @@ private:
 	};
 
 	template <typename JsonType>
-	void RequestJson(const JsonRequest<JsonType>& req);
+	void RequestJson(const JsonRequest<JsonType>& req) const;
 };
 
 template <typename JsonParsedType>
@@ -109,7 +112,7 @@ bool BallchasingAPI::WriteJsonAndParsedToDebugFile(const json& j, const JsonPars
 }
 
 template <typename JsonType>
-void BallchasingAPI::RequestJson(const JsonRequest<JsonType>& req)
+void BallchasingAPI::RequestJson(const JsonRequest<JsonType>& req) const
 {
 	HttpWrapper::SendCurlRequest(req.req, [this, req](int http_code, const std::string& res)
 	{
@@ -121,7 +124,7 @@ void BallchasingAPI::RequestJson(const JsonRequest<JsonType>& req)
 			                };
 		if (http_code != req.expected_http_code)
 		{
-			on_error(http_code, "Wrong http response code");
+			on_error(http_code, fmt::format("Wrong http response code (got {} expected {}", http_code, req.expected_http_code));
 			return;
 		}
 		try

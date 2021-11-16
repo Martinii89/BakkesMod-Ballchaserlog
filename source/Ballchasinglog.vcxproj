@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ballchasing\APIDataClasses.h" />
+    <ClInclude Include="ballchasing\ApiRequestStructs.h" />
     <ClInclude Include="ballchasing\BallchasingAPI.h" />
     <ClInclude Include="GUISettings.h" />
     <ClInclude Include="imgui\imconfig.h" />

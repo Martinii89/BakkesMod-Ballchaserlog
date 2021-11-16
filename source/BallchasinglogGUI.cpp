@@ -4,12 +4,12 @@
 
 struct VM
 {
-	GroupData* selectedGroup;
+	GroupList::GroupData* selectedGroup;
 	ReplayData* detailReplay;
 	std::set<std::string> selectedReplays;
 	std::string lastSelectedReplayID;
 
-	void SetSelectedGroup(GroupData* group);
+	void SetSelectedGroup(GroupList::GroupData* group);
 	void SetDetailReplay(ReplayData* replay);
 	bool ToggleReplaySelected(ReplayData* start);
 	bool RangeSelectReplays(ReplayData* end);
@@ -108,7 +108,7 @@ void Ballchasinglog::Render()
 	//static std::string selectedGroupID = LATEST_REPLAYS;
 	//static std::string groupName = DEFAULT_GROUP_NAME;
 
-	GroupData* selectedGroup = api_->GetCachedGroup(vm.GetSelectedGroupId());
+	GroupList::GroupData* selectedGroup = api_->GetCachedGroup(vm.GetSelectedGroupId());
 
 	if (!replayListCollapsed)
 	{
@@ -141,7 +141,7 @@ void Ballchasinglog::Render()
 
 		for (auto& groupID : api_->topLevelGroups)
 		{
-			GroupData* group = api_->GetCachedGroup(groupID);
+			auto* group = api_->GetCachedGroup(groupID);
 			auto oldGroup = selectedGroup;
 			RenderGroup(group, &selectedGroup);
 
@@ -158,37 +158,37 @@ void Ballchasinglog::Render()
 		ImGui::BeginChild("ReplayList", ImVec2(0, ImGui::GetWindowHeight() * 0.5f - 70), true);
 		if (selectedGroup != nullptr)
 		{
-			for (size_t i = 0; i < selectedGroup->groupReplays.size(); i++)
-			{
-				auto& replay = selectedGroup->groupReplays[i];
-				std::string list_lbl = replay.replay_title + "##replaylist";
-				if (ImGui::Selectable(list_lbl.c_str(), vm.ShouldReplayBeHighlighed(&replay)))
-				{
-					auto io = ImGui::GetIO();
-					if (io.KeyShift)
-					{
-						vm.RangeSelectReplays(&replay);
-					}
-					else if (io.KeyCtrl)
-					{
-						vm.ToggleReplaySelected(&replay);
-					}
-					else
-					{
-						vm.ClearReplaySelection();
-						vm.SetDetailReplay(&replay);
-					}
-				}
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					std::string blueTeam = joinPlayers(replay.blue);
-					std::string orangeTeam = joinPlayers(replay.orange);
-					ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
-					ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
-					ImGui::EndTooltip();
-				}
-			}
+			//for (size_t i = 0; i < selectedGroup->groupReplays.size(); i++)
+			//{
+			//	auto& replay = selectedGroup->groupReplays[i];
+			//	std::string list_lbl = replay.replay_title + "##replaylist";
+			//	if (ImGui::Selectable(list_lbl.c_str(), vm.ShouldReplayBeHighlighed(&replay)))
+			//	{
+			//		auto io = ImGui::GetIO();
+			//		if (io.KeyShift)
+			//		{
+			//			vm.RangeSelectReplays(&replay);
+			//		}
+			//		else if (io.KeyCtrl)
+			//		{
+			//			vm.ToggleReplaySelected(&replay);
+			//		}
+			//		else
+			//		{
+			//			vm.ClearReplaySelection();
+			//			vm.SetDetailReplay(&replay);
+			//		}
+			//	}
+			//	if (ImGui::IsItemHovered())
+			//	{
+			//		ImGui::BeginTooltip();
+			//		std::string blueTeam = joinPlayers(replay.blue);
+			//		std::string orangeTeam = joinPlayers(replay.orange);
+			//		ImGui::Text("%i\t: %s", replay.blue.goals, blueTeam.c_str());
+			//		ImGui::Text("%i\t: %s", replay.orange.goals, orangeTeam.c_str());
+			//		ImGui::EndTooltip();
+			//	}
+			//}
 		}
 		ImGui::EndChild();
 		//if (ImGui::Button("Clear")) {
@@ -264,7 +264,7 @@ void Ballchasinglog::Render()
 	}
 }
 
-void Ballchasinglog::RenderGroup(GroupData* group, GroupData** selectedGroup)
+void Ballchasinglog::RenderGroup(GroupList::GroupData* group, GroupList::GroupData** selectedGroup)
 {
 	if (group == nullptr) return;
 	static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
@@ -288,21 +288,21 @@ void Ballchasinglog::RenderGroup(GroupData* group, GroupData** selectedGroup)
 		ImGui::BeginTooltip();
 		ImGui::Text("Created: %s", group->created.c_str());
 		ImGui::Text("%s", group->shared ? "Public" : "Private");
-		ImGui::Text("Status: %s", group->status.c_str());
+		//ImGui::Text("Status: %s", group->status.c_str());
 		ImGui::EndTooltip();
 	}
 	if (node_open)
 	{
-		for (auto subgroupID : group->subgroups)
-		{
-			auto pSubGroup = api_->GetCachedGroup(subgroupID);
-			RenderGroup(pSubGroup, selectedGroup);
-		}
+		//for (auto subgroupID : group->subgroups)
+		//{
+		//	auto pSubGroup = api_->GetCachedGroup(subgroupID);
+		//	RenderGroup(pSubGroup, selectedGroup);
+		//}
 		ImGui::TreePop();
 	}
 }
 
-bool Ballchasinglog::RenderGroupSelector(GroupData* group, GroupData** selectedGroup)
+bool Ballchasinglog::RenderGroupSelector(GroupList::GroupData* group, GroupList::GroupData** selectedGroup)
 {
 	bool groupClicked = false;
 	if (group == nullptr) return groupClicked;
@@ -323,11 +323,11 @@ bool Ballchasinglog::RenderGroupSelector(GroupData* group, GroupData** selectedG
 	}
 	if (node_open)
 	{
-		for (auto subgroupID : group->subgroups)
-		{
-			auto pSubGroup = api_->GetCachedGroup(subgroupID);
-			groupClicked |= RenderGroupSelector(pSubGroup, selectedGroup);
-		}
+		//for (auto subgroupID : group->subgroups)
+		//{
+		//	auto pSubGroup = api_->GetCachedGroup(subgroupID);
+		//	groupClicked |= RenderGroupSelector(pSubGroup, selectedGroup);
+		//}
 		ImGui::TreePop();
 	}
 	return groupClicked;
@@ -335,10 +335,12 @@ bool Ballchasinglog::RenderGroupSelector(GroupData* group, GroupData** selectedG
 
 void Ballchasinglog::OnReplayGroupChange(std::string id)
 {
-	if (id == "LATEST") {
+	if (id == "LATEST")
+	{
 		api_->GetLastMatches();
 	}
-	else {
+	else
+	{
 		api_->GetReplaysForGroup(id);
 	}
 }
@@ -356,10 +358,9 @@ void Ballchasinglog::RenderReplayDetail(ReplayData* detail)
 
 		ImGui::EndTabBar();
 	}
-
 }
 
-void Ballchasinglog::RenderGroupDetail(GroupData* group)
+void Ballchasinglog::RenderGroupDetail(GroupList::GroupData* group)
 {
 	if (ImGui::BeginTabBar("#"))
 	{
@@ -377,29 +378,38 @@ void Ballchasinglog::AssignReplayPopup(VM* vm)
 {
 	if (ImGui::BeginPopup("AssignReplaysPopup"))
 	{
-		if (vm->detailReplay == nullptr && vm->selectedReplays.size() == 0) {
+		if (vm->detailReplay == nullptr && vm->selectedReplays.size() == 0)
+		{
 			ImGui::Text("Select some replays first");
 			ImGui::EndPopup();
 			return;
 		}
 		static std::string selectedGroupId = "";
 		ImGui::InputText("GroupID", &selectedGroupId);
-		for (auto& groupID : api_->topLevelGroups) {
+		for (auto& groupID : api_->topLevelGroups)
+		{
 			if (groupID == "LATEST") continue;
-			GroupData* group = api_->GetCachedGroup(groupID);
-			GroupData* selectedGroup = nullptr;
-			if (RenderGroupSelector(group, &selectedGroup)) {
+			auto* group = api_->GetCachedGroup(groupID);
+			GroupList::GroupData* selectedGroup = nullptr;
+			if (RenderGroupSelector(group, &selectedGroup))
+			{
 				selectedGroupId = selectedGroup->id;
 			}
 		}
-		if (ImGui::Button("Assign")) {
-			api_->AssignReplays(selectedGroupId, std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()), {});
+		if (ImGui::Button("Assign"))
+		{
+			api_->AssignReplays(selectedGroupId,
+			                    std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()), {});
 			ImGui::CloseCurrentPopup();
-		}ImGui::SameLine();
+		}
+		ImGui::SameLine();
 		auto selectedGroup = vm->GetSelectedGroupId();
-		if (!selectedGroup.empty() && selectedGroup != "LATEST") {
-			if (ImGui::Button("Remove")) {
-				api_->AssignReplays(selectedGroup, {}, std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()));
+		if (!selectedGroup.empty() && selectedGroup != "LATEST")
+		{
+			if (ImGui::Button("Remove"))
+			{
+				api_->AssignReplays(selectedGroup, {},
+				                    std::vector<std::string>(vm->selectedReplays.begin(), vm->selectedReplays.end()));
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -408,13 +418,15 @@ void Ballchasinglog::AssignReplayPopup(VM* vm)
 	}
 }
 
-bool Ballchasinglog::GroupSelector(std::string* groupId) {
+bool Ballchasinglog::GroupSelector(std::string* groupId)
+{
 	bool clicked = false;
-	for (auto& groupID : api_->topLevelGroups) {
-
-		GroupData* group = api_->GetCachedGroup(groupID);
-		GroupData* selectedGroup = nullptr;
-		if (RenderGroupSelector(group, &selectedGroup)) {
+	for (auto& groupID : api_->topLevelGroups)
+	{
+		auto* group = api_->GetCachedGroup(groupID);
+		GroupList::GroupData* selectedGroup = nullptr;
+		if (RenderGroupSelector(group, &selectedGroup))
+		{
 			clicked = true;
 			*groupId = selectedGroup->id;
 		}
@@ -429,32 +441,42 @@ void Ballchasinglog::CreateGroupPopup()
 	static bool deleteGroupSure = false;
 	static std::string groupName = "";
 	static std::string parentGroup = "";
-	if (ImGui::BeginPopup("CreateGroupPopup")) {
+	if (ImGui::BeginPopup("CreateGroupPopup"))
+	{
 		ImGui::Checkbox("Delete", &deleteGroup);
-		if (!deleteGroup) {
+		if (!deleteGroup)
+		{
 			ImGui::InputText("Group name", &groupName);
 			ImGui::InputText("Parent Group", &parentGroup);
 			ImGui::Text("Select Parent group");
 		}
-		else {
+		else
+		{
 			ImGui::InputText("Group to delete", &parentGroup);
 			ImGui::Text("Select Group to delete");
 		}
 		ImGui::Separator();
-		if (GroupSelector(&parentGroup)) {
+		if (GroupSelector(&parentGroup))
+		{
 			if (parentGroup == "LATEST") parentGroup = "";
 		}
 		ImGui::Separator();
-		if (!deleteGroup) {
-			if (ImGui::Button("Create")) {
+		if (!deleteGroup)
+		{
+			if (ImGui::Button("Create"))
+			{
 				api_->CreateGroup(groupName, parentGroup);
 				ImGui::CloseCurrentPopup();
 			}
 		}
-		else {
-			ImGui::Checkbox("You sure?", &deleteGroupSure); ImGui::SameLine();
-			if (ImGui::Button("Delete##deletegroupbutton")) {
-				if (deleteGroupSure) {
+		else
+		{
+			ImGui::Checkbox("You sure?", &deleteGroupSure);
+			ImGui::SameLine();
+			if (ImGui::Button("Delete##deletegroupbutton"))
+			{
+				if (deleteGroupSure)
+				{
 					api_->DeleteGroup(parentGroup);
 					ImGui::CloseCurrentPopup();
 				}
@@ -464,7 +486,8 @@ void Ballchasinglog::CreateGroupPopup()
 
 		ImGui::EndPopup();
 	}
-	else {
+	else
+	{
 		deleteGroup = false;
 		deleteGroupSure = false;
 	}
@@ -499,20 +522,24 @@ void Ballchasinglog::ContextMenu(std::vector<TableColumn>& columnData)
 		ImGui::EndPopup();
 	}
 }
+
 bool Ballchasinglog::ContextMenu(ReplayData* detail, GroupData* parentGroup)
 {
-	if (ImGui::BeginPopupContextItem()) {
-
-		if (ImGui::BeginMenu("Add to group")) {
-			for (auto& groupID : api_->topLevelGroups) {
-				if (ImGui::Selectable(groupID.c_str())) {
+	if (ImGui::BeginPopupContextItem())
+	{
+		if (ImGui::BeginMenu("Add to group"))
+		{
+			for (auto& groupID : api_->topLevelGroups)
+			{
+				if (ImGui::Selectable(groupID.c_str()))
+				{
 					api_->AddReplayToGroup(detail->id, groupID);
 				}
-
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::Selectable("Remove from group")) {
+		if (ImGui::Selectable("Remove from group"))
+		{
 			api_->AddReplayToGroup(detail->id, "");
 		}
 
@@ -521,7 +548,9 @@ bool Ballchasinglog::ContextMenu(ReplayData* detail, GroupData* parentGroup)
 	}
 	return false;
 }
-void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool bBlueHeader, bool bOrangeHeader)
+
+void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, ReplayData* detail, bool bBlueHeader,
+                                    bool bOrangeHeader)
 {
 	bool tabOpen = ImGui::BeginTabItem(name.c_str());
 	ContextMenu(settings.Columns);
@@ -537,7 +566,7 @@ void Ballchasinglog::RenderTableTab(std::string name, TableSettings& settings, R
 	}
 }
 
-void Ballchasinglog::RenderGroupTab(std::string name, TableSettings& settings, GroupData* detail)
+void Ballchasinglog::RenderGroupTab(std::string name, TableSettings& settings, GroupList::GroupData* detail)
 {
 	static Team dummyTeam;
 	bool tabOpen = ImGui::BeginTabItem(name.c_str());
@@ -547,13 +576,15 @@ void Ballchasinglog::RenderGroupTab(std::string name, TableSettings& settings, G
 		ImGui::BeginChild((name + "tab").c_str());
 		int cols = ImGui::GetColumnsCount();
 		ImGui::Columns(settings.GetColumnCount());
-		for (auto& col : settings.Columns) {
+		for (auto& col : settings.Columns)
+		{
 			col.RenderHeader(dummyTeam);
 		}
 		ImGui::Separator();
-		for (auto& p : detail->players) {
-			RenderPlayerRow(p, settings);
-		}
+		//for (auto& p : detail->players)
+		//{
+		//	RenderPlayerRow(p, settings);
+		//}
 		//RenderTeamTable(detail->blue, settings, bBlueHeader);
 		//ImGui::Separator();
 		//RenderTeamTable(detail->orange, settings, bOrangeHeader);
@@ -567,15 +598,18 @@ void Ballchasinglog::RenderTeamTable(Team& team, TableSettings& settings, bool d
 {
 	int cols = ImGui::GetColumnsCount();
 	ImGui::Columns(settings.GetColumnCount());
-	if (drawHeader) {
-		for (auto& col : settings.Columns) {
+	if (drawHeader)
+	{
+		for (auto& col : settings.Columns)
+		{
 			col.RenderHeader(team);
 		}
 		ImGui::Separator();
 	}
 
-	
-	for (auto& p : team.players) {
+
+	for (auto& p : team.players)
+	{
 		RenderPlayerRow(p, settings);
 		//for (auto col : settings.Columns) {
 		//	col.RenderCell(p);
@@ -586,12 +620,13 @@ void Ballchasinglog::RenderTeamTable(Team& team, TableSettings& settings, bool d
 
 void Ballchasinglog::RenderPlayerRow(BaseStatPlayer& p, TableSettings& settings)
 {
-	for (auto col : settings.Columns) {
+	for (auto col : settings.Columns)
+	{
 		col.RenderCell(p);
 	}
 }
 
-void VM::SetSelectedGroup(GroupData* group)
+void VM::SetSelectedGroup(GroupList::GroupData* group)
 {
 	selectedGroup = group;
 	detailReplay = nullptr;
@@ -608,7 +643,8 @@ void VM::SetDetailReplay(ReplayData* replay)
 bool VM::ToggleReplaySelected(ReplayData* start)
 {
 	if (!start) return false;
-	if (selectedReplays.erase(start->id) == 0) {
+	if (selectedReplays.erase(start->id) == 0)
+	{
 		selectedReplays.insert(start->id);
 	}
 	return true;
@@ -616,21 +652,27 @@ bool VM::ToggleReplaySelected(ReplayData* start)
 
 bool VM::RangeSelectReplays(ReplayData* end)
 {
-	if (!selectedGroup) {
+	if (!selectedGroup)
+	{
 		return false;
 	}
-	if (lastSelectedReplayID.empty()) {
+	if (lastSelectedReplayID.empty())
+	{
 		return false;
 	}
-	auto first = std::find_if(selectedGroup->groupReplays.begin(), selectedGroup->groupReplays.end(), [this](ReplayData a) { return a.id == this->lastSelectedReplayID; });
-	auto stop = std::find_if(selectedGroup->groupReplays.begin(), selectedGroup->groupReplays.end(), [end](ReplayData a) { return a.id == end->id; });
-	if (first == selectedGroup->groupReplays.end() || stop == selectedGroup->groupReplays.end()) {
-		return false;
-	}
-	if (first > stop) {
-		std::swap(first, stop);
-	}
-	std::for_each(first, stop+1, [this](ReplayData r) {this->selectedReplays.insert(r.id); });
+	//auto first = std::find_if(selectedGroup->groupReplays.begin(), selectedGroup->groupReplays.end(),
+	//                          [this](ReplayData a) { return a.id == this->lastSelectedReplayID; });
+	//auto stop = std::find_if(selectedGroup->groupReplays.begin(), selectedGroup->groupReplays.end(),
+	//                         [end](ReplayData a) { return a.id == end->id; });
+	//if (first == selectedGroup->groupReplays.end() || stop == selectedGroup->groupReplays.end())
+	//{
+	//	return false;
+	//}
+	//if (first > stop)
+	//{
+	//	std::swap(first, stop);
+	//}
+	//std::for_each(first, stop + 1, [this](ReplayData r) { this->selectedReplays.insert(r.id); });
 	return true;
 }
 
@@ -641,10 +683,12 @@ void VM::ClearReplaySelection()
 
 bool VM::ShouldReplayBeHighlighed(ReplayData* replay)
 {
-	if (replay == detailReplay) {
+	if (replay == detailReplay)
+	{
 		return true;
 	}
-	if (selectedReplays.find(replay->id) != selectedReplays.end()) {
+	if (selectedReplays.find(replay->id) != selectedReplays.end())
+	{
 		return true;
 	}
 	return false;
@@ -652,7 +696,8 @@ bool VM::ShouldReplayBeHighlighed(ReplayData* replay)
 
 std::string VM::GetSelectedGroupId()
 {
-	if (selectedGroup) {
+	if (selectedGroup)
+	{
 		return selectedGroup->id;
 	}
 	return "LATEST";
@@ -667,7 +712,8 @@ std::string VM::GetDetailReplayId()
 
 std::string VM::GetDetailReplayLink()
 {
-	if (detailReplay == nullptr) {
+	if (detailReplay == nullptr)
+	{
 		return "No replay selected";
 	}
 	std::stringstream url;
@@ -677,7 +723,8 @@ std::string VM::GetDetailReplayLink()
 
 std::string VM::GetSelectedGroupLink()
 {
-	if (selectedGroup == nullptr) {
+	if (selectedGroup == nullptr)
+	{
 		return "No group selected";
 	}
 	std::stringstream url;
