@@ -68,16 +68,16 @@ void BallchasingAPI::GetLastMatches()
 {
 	gw_->Toast("Ballchasing log", "Fetching your most recent replays");
 
-	auto on_done = [this](const json& j, GetReplaysResponse& data)
+	auto on_done = [this](const json& j, ReplayList& data)
 	{
 		LOG("Count: {}, list length: {}", data.count, data.list.size());
 		if (!WriteJsonAndParsedToDebugFile(j, data, "last_replays"))
 		{
 			DefaultOnError(0, "Failed writing debug file for last_replays");
 		}
-		OnGotReplayList(data.list, "LATEST");
+		//OnGotReplayList(data.list, "LATEST");
 	};
-	const JsonRequest<GetReplaysResponse> json_req{
+	const JsonRequest<ReplayList> json_req{
 		GetRequestBase("api/replays?uploader=me", "GET"),
 	std::move(on_done) };
 	RequestJson(json_req);
@@ -139,7 +139,7 @@ void BallchasingAPI::GetSubGroups(const std::string& groupID)
 
 void BallchasingAPI::GetReplaysForGroup(const std::string& id)
 {
-	auto on_done2 = [this, id](const json j, const GetReplaysResponse& data)
+	auto on_done2 = [this, id](const json& j, const GetReplaysResponse& data)
 	{
 		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("group_replays_{}", id)))
 		{
