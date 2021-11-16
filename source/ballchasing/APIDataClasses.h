@@ -247,7 +247,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningStats, avg_distance_to_ba
                                             percent_behind_ball, percent_infront_ball, percent_most_back,
                                             percent_most_forward, percent_closest_to_ball, percent_farthest_from_ball);
 
-struct PositioningGroupStats
+struct PositioningGroupPlayerStats
 {
 	float avg_distance_to_ball = 0;
 	float avg_distance_to_ball_no_possession = 0;
@@ -273,7 +273,7 @@ struct PositioningGroupStats
 	float time_offensive_third = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupStats, avg_distance_to_ball, avg_distance_to_ball_possession,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupPlayerStats, avg_distance_to_ball, avg_distance_to_ball_possession,
                                             avg_distance_to_ball_no_possession,
                                             time_defensive_third, time_neutral_third, time_offensive_third,
                                             time_defensive_half, time_offensive_half, time_behind_ball,
@@ -583,12 +583,12 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupList::GroupData, created, direc
                                             link, name, player_identification, shared, team_identification, user);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupList, list)
 
-struct CumulativePlayerGroupStats
+struct GroupPlayerStatsCumulative
 {
 	CoreStats core;
 	BoostStats boost;
 	MovementStats movement;
-	PositioningGroupStats positioning;
+	PositioningGroupPlayerStats positioning;
 	DemoStats demo;
 	int games = 0;
 	int wins = 0;
@@ -596,16 +596,16 @@ struct CumulativePlayerGroupStats
 	int play_duration = 0;
 };
 
-struct GameAveragePlayerGroupStats
+struct GroupPlayerStatsGameAverage
 {
 	CoreStats core;
 	BoostStats boost;
 	MovementStats movement;
-	PositioningGroupStats positioning;
+	PositioningGroupPlayerStats positioning;
 	DemoStats demo;
 };
 
-struct CumulativeTeamGroupStats
+struct GroupTeamStatsCumulative
 {
 	CoreStatsTeam core;
 	BoostStatsTeamCumulative boost;
@@ -618,7 +618,7 @@ struct CumulativeTeamGroupStats
 	int play_duration = 0;
 };
 
-struct GameAverageTeamGroupStats
+struct GroupTeamStatsGameAverage
 {
 	CoreStatsTeam core;
 	BoostStatsTeamAverage boost;
@@ -627,20 +627,20 @@ struct GameAverageTeamGroupStats
 	DemoStats demo;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CumulativePlayerGroupStats, core, boost, movement, positioning, demo, games,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupPlayerStatsCumulative, core, boost, movement, positioning, demo, games,
                                             wins, win_percentage, play_duration);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GameAveragePlayerGroupStats, core, boost, movement, positioning, demo);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupPlayerStatsGameAverage, core, boost, movement, positioning, demo);
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CumulativeTeamGroupStats, core, boost, movement, positioning, demo, games,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupTeamStatsCumulative, core, boost, movement, positioning, demo, games,
                                             wins, win_percentage, play_duration);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GameAverageTeamGroupStats, core, boost, movement, positioning, demo);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupTeamStatsGameAverage, core, boost, movement, positioning, demo);
 
 struct GroupDetail
 {
 	struct Player
 	{
-		CumulativePlayerGroupStats cumulative;
-		GameAveragePlayerGroupStats game_average;
+		GroupPlayerStatsCumulative cumulative;
+		GroupPlayerStatsGameAverage game_average;
 		std::string name;
 		std::string id;
 		std::string platform;
@@ -650,8 +650,8 @@ struct GroupDetail
 	struct Team
 	{
 		std::string name;
-		CumulativeTeamGroupStats cumulative;
-		GameAverageTeamGroupStats game_average;
+		GroupTeamStatsCumulative cumulative;
+		GroupTeamStatsGameAverage game_average;
 		struct Player
 		{
 			std::string name;
