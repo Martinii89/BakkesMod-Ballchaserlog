@@ -87,8 +87,43 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStats, bpm, bcpm, avg_amount, a
                                             percent_boost_25_50, percent_boost_50_75, percent_boost_75_100);
 
 
+struct BoostStatsTeamAverage
+{
+	float amount_collected = 0;
+	float amount_collected_big = 0;
+	float amount_collected_small = 0;
+	float amount_overfill = 0;
+	float amount_overfill_stolen = 0;
+	float amount_stolen = 0;
+	float amount_stolen_big = 0;
+	float amount_stolen_small = 0;
+	float amount_used_while_supersonic = 0;
+	float count_collected_big = 0;
+	float count_collected_small = 0;
+	float count_stolen_big = 0;
+	float count_stolen_small = 0;
+	float percent_full_boost = 0;
+	float percent_zero_boost = 0;
+	float time_boost_0_25 = 0;
+	float time_boost_25_50 = 0;
+	float time_boost_50_75 = 0;
+	float time_boost_75_100 = 0;
+	float time_full_boost = 0;
+	float time_zero_boost = 0;
+	float avg_amount = 0;
+	float bcpm = 0;
+	float bpm = 0;
+};
 
-struct BoostStatsTeam
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeamAverage, bpm, bcpm, avg_amount, amount_collected, amount_stolen,
+	amount_collected_big, amount_stolen_big, amount_collected_small,
+	amount_stolen_small, count_collected_big, count_stolen_big,
+	count_collected_small, count_stolen_small, amount_overfill,
+	amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
+	percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
+	time_boost_25_50, time_boost_50_75, time_boost_75_100);
+
+struct BoostStatsTeamCumulative
 {
 	float amount_collected = 0;
 	float amount_collected_big = 0;
@@ -113,13 +148,14 @@ struct BoostStatsTeam
 	float time_zero_boost = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeam,  amount_collected, amount_stolen,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeamCumulative,  amount_collected, amount_stolen,
                                             amount_collected_big, amount_stolen_big, amount_collected_small,
                                             amount_stolen_small, count_collected_big, count_stolen_big,
                                             count_collected_small, count_stolen_small, amount_overfill,
                                             amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
                                             percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
                                             time_boost_25_50, time_boost_50_75, time_boost_75_100);
+
 
 struct MovementStats
 {
@@ -247,6 +283,37 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupStats, avg_distance_
                                             percent_neutral_third, percent_defensive_half, percent_offensive_half,
                                             percent_behind_ball, percent_infront_ball);
 
+
+//"avg_distance_to_ball": 0,
+//"avg_distance_to_ball_no_possession" : 0,
+//"avg_distance_to_ball_possession" : 0,
+//"time_behind_ball" : 2090.35,
+//"time_defensive_half" : 1923.8198,
+//"time_defensive_third" : 1442.63,
+//"time_infront_ball" : 845.58,
+//"time_neutral_third" : 913.07,
+//"time_offensive_half" : 1012.10004,
+//"time_offensive_third" : 580.22003
+
+struct PositioningGroupTeamStats
+{
+	float avg_distance_to_ball = 0;
+	float avg_distance_to_ball_no_possession = 0;
+	float avg_distance_to_ball_possession = 0;
+	float time_behind_ball = 0;
+	float time_defensive_half = 0;
+	float time_defensive_third = 0;
+	float time_infront_ball = 0;
+	float time_neutral_third = 0;
+	float time_offensive_half = 0;
+	float time_offensive_third = 0;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupTeamStats, avg_distance_to_ball, avg_distance_to_ball_possession,
+	avg_distance_to_ball_no_possession,
+	time_defensive_third, time_neutral_third, time_offensive_third,
+	time_defensive_half, time_offensive_half, time_behind_ball,
+	time_infront_ball);
 
 struct DemoStats
 {
@@ -541,9 +608,9 @@ struct GameAveragePlayerGroupStats
 struct CumulativeTeamGroupStats
 {
 	CoreStatsTeam core;
-	BoostStatsTeam boost;
+	BoostStatsTeamCumulative boost;
 	MovementStatsTeam movement;
-	PositioningGroupStats positioning;
+	PositioningGroupTeamStats positioning;
 	DemoStats demo;
 	int games = 0;
 	int wins = 0;
@@ -554,9 +621,9 @@ struct CumulativeTeamGroupStats
 struct GameAverageTeamGroupStats
 {
 	CoreStatsTeam core;
-	BoostStatsTeam boost;
+	BoostStatsTeamAverage boost;
 	MovementStatsTeam movement;
-	PositioningGroupStats positioning;
+	PositioningGroupTeamStats positioning;
 	DemoStats demo;
 };
 
