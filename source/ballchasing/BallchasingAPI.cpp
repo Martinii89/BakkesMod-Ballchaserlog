@@ -183,9 +183,7 @@ void BallchasingAPI::GetTopLevelGroups()
 			GetSubGroups(data.list[0].id);
 		}
 	};
-	GetGroupsParms params;
-	params.creator = "me";
-	GetGroups(params, on_done);
+	GetGroups({ .creator = "me" }, on_done);
 }
 
 void BallchasingAPI::GetSubGroups(const std::string_view group_id) const
@@ -203,9 +201,8 @@ void BallchasingAPI::GetSubGroups(const std::string_view group_id) const
 		}
 		//OnGetReplayGroupsSuccess(data, groupID);
 	};
-	GetGroupsParms params;
-	params.parent_group = group_id;
-	GetGroups(params, on_done);
+	
+	GetGroups({ .parent_group = group_id.data() }, on_done);
 }
 
 void BallchasingAPI::GetReplaysForGroup(const std::string_view id) const
