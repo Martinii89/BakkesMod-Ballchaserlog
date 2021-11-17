@@ -19,17 +19,17 @@ public:
 	// API calls
 	void Ping() const;
 	void GetLastMatches() const;
-	void GetReplayDetails(const std::string_view id);
+	void GetReplayDetails(std::string_view id) const;
 
 	// Group stuff
 	void GetGroups(const GetGroupsParms& params, const std::function<void(json& j,const GroupList& groups)>& on_success) const;
-	void GetGroupStats(const std::string_view id) const;
-	void GetReplaysForGroup(const std::string_view id) const;
+	void GetGroupStats(std::string_view id) const;
+	void GetReplaysForGroup(std::string_view id) const;
 
 	void GetTopLevelGroups();
-	void GetSubGroups(const std::string_view group_id) const;
-	void AddReplayToGroup(const std::string_view replay_id, const std::string_view group_id) const;
-	void AssignReplays(const std::string_view group_id, const std::vector<std::string>& addReplays,
+	void GetSubGroups(std::string_view group_id) const;
+	void AddReplayToGroup(std::string_view replay_id, std::string_view group_id) const;
+	void AssignReplays(std::string_view group_id, const std::vector<std::string>& addReplays,
 	                   const std::vector<std::string>
 	                   & removeReplays) const;
 	void CreateGroup(const std::string& groupName, const std::string& parentGroupId = "");
@@ -39,7 +39,7 @@ public:
 	void OnOk(std::string message) const;
 
 	// Get cached results
-	ReplayData GetCachedReplayDetail(const std::string_view replay_id, const std::string_view group_id);
+	ReplayData GetCachedReplayDetail(std::string_view replay_id, std::string_view group_id);
 	GroupList::GroupData* GetCachedGroup(std::string_view id);
 
 private:
@@ -48,7 +48,7 @@ private:
 	std::shared_ptr<CVarManagerWrapper> cvar_;
 	std::shared_ptr<GameWrapper> gw_;
 
-	ReplayData GetTemporaryOverviewData(const std::string_view replay_id, const std::string_view group_id);
+	ReplayData GetTemporaryOverviewData(std::string_view replay_id, std::string_view group_id);
 
 	[[nodiscard]] std::map<std::string, std::string> GetAuthHeaders() const;
 	// API response callbacks 

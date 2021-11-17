@@ -26,7 +26,7 @@ struct CoreStats
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CoreStats, shots, shots_against, goals, goals_against, saves, assists,
-	score, shooting_percentage, mvp)
+                                            score, shooting_percentage, mvp)
 
 
 struct CoreStatsTeam
@@ -42,7 +42,7 @@ struct CoreStatsTeam
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CoreStatsTeam, shots, shots_against, goals, goals_against, saves, assists,
-	score, shooting_percentage)
+                                            score, shooting_percentage)
 
 struct BoostStats
 {
@@ -78,13 +78,13 @@ struct BoostStats
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStats, bpm, bcpm, avg_amount, amount_collected, amount_stolen,
-	amount_collected_big, amount_stolen_big, amount_collected_small,
-	amount_stolen_small, count_collected_big, count_stolen_big,
-	count_collected_small, count_stolen_small, amount_overfill,
-	amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
-	percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
-	time_boost_25_50, time_boost_50_75, time_boost_75_100, percent_boost_0_25,
-	percent_boost_25_50, percent_boost_50_75, percent_boost_75_100);
+                                            amount_collected_big, amount_stolen_big, amount_collected_small,
+                                            amount_stolen_small, count_collected_big, count_stolen_big,
+                                            count_collected_small, count_stolen_small, amount_overfill,
+                                            amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
+                                            percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
+                                            time_boost_25_50, time_boost_50_75, time_boost_75_100, percent_boost_0_25,
+                                            percent_boost_25_50, percent_boost_50_75, percent_boost_75_100);
 
 
 struct BoostStatsTeamAverage
@@ -115,13 +115,14 @@ struct BoostStatsTeamAverage
 	float bpm = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeamAverage, bpm, bcpm, avg_amount, amount_collected, amount_stolen,
-	amount_collected_big, amount_stolen_big, amount_collected_small,
-	amount_stolen_small, count_collected_big, count_stolen_big,
-	count_collected_small, count_stolen_small, amount_overfill,
-	amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
-	percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
-	time_boost_25_50, time_boost_50_75, time_boost_75_100);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeamAverage, bpm, bcpm, avg_amount, amount_collected,
+                                            amount_stolen,
+                                            amount_collected_big, amount_stolen_big, amount_collected_small,
+                                            amount_stolen_small, count_collected_big, count_stolen_big,
+                                            count_collected_small, count_stolen_small, amount_overfill,
+                                            amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
+                                            percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
+                                            time_boost_25_50, time_boost_50_75, time_boost_75_100);
 
 struct BoostStatsTeamCumulative
 {
@@ -149,12 +150,12 @@ struct BoostStatsTeamCumulative
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BoostStatsTeamCumulative, amount_collected, amount_stolen,
-	amount_collected_big, amount_stolen_big, amount_collected_small,
-	amount_stolen_small, count_collected_big, count_stolen_big,
-	count_collected_small, count_stolen_small, amount_overfill,
-	amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
-	percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
-	time_boost_25_50, time_boost_50_75, time_boost_75_100);
+                                            amount_collected_big, amount_stolen_big, amount_collected_small,
+                                            amount_stolen_small, count_collected_big, count_stolen_big,
+                                            count_collected_small, count_stolen_small, amount_overfill,
+                                            amount_overfill_stolen, amount_used_while_supersonic, time_zero_boost,
+                                            percent_zero_boost, time_full_boost, percent_full_boost, time_boost_0_25,
+                                            time_boost_25_50, time_boost_50_75, time_boost_75_100);
 
 
 struct MovementStats
@@ -181,11 +182,11 @@ struct MovementStats
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(MovementStats, avg_speed, total_distance, time_supersonic_speed,
-	time_boost_speed, time_slow_speed, time_ground, time_low_air, time_high_air,
-	time_powerslide, count_powerslide, avg_powerslide_duration,
-	avg_speed_percentage, percent_slow_speed, percent_boost_speed,
-	percent_supersonic_speed, percent_ground, percent_low_air,
-	percent_high_air);
+                                            time_boost_speed, time_slow_speed, time_ground, time_low_air, time_high_air,
+                                            time_powerslide, count_powerslide, avg_powerslide_duration,
+                                            avg_speed_percentage, percent_slow_speed, percent_boost_speed,
+                                            percent_supersonic_speed, percent_ground, percent_low_air,
+                                            percent_high_air);
 
 struct MovementStatsTeam
 {
@@ -201,8 +202,8 @@ struct MovementStatsTeam
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(MovementStatsTeam, total_distance, time_supersonic_speed,
-	time_boost_speed, time_slow_speed, time_ground, time_low_air, time_high_air,
-	time_powerslide, count_powerslide);
+                                            time_boost_speed, time_slow_speed, time_ground, time_low_air, time_high_air,
+                                            time_powerslide, count_powerslide);
 
 struct PositioningStats
 {
@@ -237,15 +238,15 @@ struct PositioningStats
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningStats, avg_distance_to_ball, avg_distance_to_ball_possession,
-	avg_distance_to_ball_no_possession, avg_distance_to_mates,
-	time_defensive_third, time_neutral_third, time_offensive_third,
-	time_defensive_half, time_offensive_half, time_behind_ball,
-	time_infront_ball, time_most_back, time_most_forward,
-	goals_against_while_last_defender, time_closest_to_ball,
-	time_farthest_from_ball, percent_defensive_third, percent_offensive_third,
-	percent_neutral_third, percent_defensive_half, percent_offensive_half,
-	percent_behind_ball, percent_infront_ball, percent_most_back,
-	percent_most_forward, percent_closest_to_ball, percent_farthest_from_ball);
+                                            avg_distance_to_ball_no_possession, avg_distance_to_mates,
+                                            time_defensive_third, time_neutral_third, time_offensive_third,
+                                            time_defensive_half, time_offensive_half, time_behind_ball,
+                                            time_infront_ball, time_most_back, time_most_forward,
+                                            goals_against_while_last_defender, time_closest_to_ball,
+                                            time_farthest_from_ball, percent_defensive_third, percent_offensive_third,
+                                            percent_neutral_third, percent_defensive_half, percent_offensive_half,
+                                            percent_behind_ball, percent_infront_ball, percent_most_back,
+                                            percent_most_forward, percent_closest_to_ball, percent_farthest_from_ball);
 
 struct PositioningGroupPlayerStats
 {
@@ -273,15 +274,16 @@ struct PositioningGroupPlayerStats
 	float time_offensive_third = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupPlayerStats, avg_distance_to_ball, avg_distance_to_ball_possession,
-	avg_distance_to_ball_no_possession,
-	time_defensive_third, time_neutral_third, time_offensive_third,
-	time_defensive_half, time_offensive_half, time_behind_ball,
-	time_infront_ball, time_most_back, time_most_forward,
-	goals_against_while_last_defender, time_closest_to_ball,
-	time_farthest_from_ball, percent_defensive_third, percent_offensive_third,
-	percent_neutral_third, percent_defensive_half, percent_offensive_half,
-	percent_behind_ball, percent_infront_ball);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupPlayerStats, avg_distance_to_ball,
+                                            avg_distance_to_ball_possession,
+                                            avg_distance_to_ball_no_possession,
+                                            time_defensive_third, time_neutral_third, time_offensive_third,
+                                            time_defensive_half, time_offensive_half, time_behind_ball,
+                                            time_infront_ball, time_most_back, time_most_forward,
+                                            goals_against_while_last_defender, time_closest_to_ball,
+                                            time_farthest_from_ball, percent_defensive_third, percent_offensive_third,
+                                            percent_neutral_third, percent_defensive_half, percent_offensive_half,
+                                            percent_behind_ball, percent_infront_ball);
 
 
 //"avg_distance_to_ball": 0,
@@ -309,11 +311,12 @@ struct PositioningGroupTeamStats
 	float time_offensive_third = 0;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupTeamStats, avg_distance_to_ball, avg_distance_to_ball_possession,
-	avg_distance_to_ball_no_possession,
-	time_defensive_third, time_neutral_third, time_offensive_third,
-	time_defensive_half, time_offensive_half, time_behind_ball,
-	time_infront_ball);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PositioningGroupTeamStats, avg_distance_to_ball,
+                                            avg_distance_to_ball_possession,
+                                            avg_distance_to_ball_no_possession,
+                                            time_defensive_third, time_neutral_third, time_offensive_third,
+                                            time_defensive_half, time_offensive_half, time_behind_ball,
+                                            time_infront_ball);
 
 struct DemoStats
 {
@@ -335,7 +338,7 @@ struct CameraSettings
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CameraSettings, fov, height, pitch, distance, stiffness, swivel_speed,
-	transition_speed);
+                                            transition_speed);
 
 struct PlayerStats
 {
@@ -363,7 +366,7 @@ struct CumulativePlayerStats
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(CumulativePlayerStats, core, boost, movement, positioning, demo, games,
-	wins, win_percentage, play_duration);
+                                            wins, win_percentage, play_duration);
 
 struct BaseStatPlayer
 {
@@ -477,33 +480,31 @@ struct GroupStatsCreator
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(BallchasingUser, avatar, name, profile_url, steam_id);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupStatsCreator, avatar, avatar_full, avatar_medium, name, profile_url,
-	steam_id);
+                                            steam_id);
+struct Rank
+{
+	int division = 0;
+	std::string id;
+	std::string name;
+	int tier = 0;
+};
 
+struct PlayerId
+{
+	std::string id;
+	std::string platform;
+};
 
 struct ReplayList
 {
 	struct ReplayData
 	{
-		struct Rank
-		{
-			int division = 0;
-			std::string id;
-			std::string name;
-			int tier = 0;
-		};
-
 		struct Team
 		{
 			struct Player
 			{
-				struct Id
-				{
-					std::string id;
-					std::string platform;
-				};
-
 				float end_time = 0;
-				Id id;
+				PlayerId id;
 				bool mvp = false;
 				std::string name;
 				Rank rank;
@@ -544,20 +545,131 @@ struct ReplayList
 	std::string next;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList::ReplayData::Rank, division, id, name, tier);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(Rank, division, id, name, tier);
 
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList::ReplayData::Team::Player::Id, id, platform);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(PlayerId, id, platform);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList::ReplayData::Team::Player, end_time, id, mvp, name, rank, score,
-	start_time);
+                                            start_time);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList::ReplayData::Team, goals, name, players);
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList::ReplayData, created, date, date_has_tz, duration, id, link,
-	map_code, map_name, max_rank, min_rank, overtime, playlist_id,
-	playlist_name, replay_title, rocket_league_id, season, season_type,
-	uploader, visibility, blue, orange);
+                                            map_code, map_name, max_rank, min_rank, overtime, playlist_id,
+                                            playlist_name, replay_title, rocket_league_id, season, season_type,
+                                            uploader, visibility, blue, orange);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayList, count, list, next)
 
+struct ReplayDetailPositioningStats
+{
+	float avg_distance_to_ball = 0;
+	float avg_distance_to_ball_no_possession = 0;
+	float avg_distance_to_ball_possession = 0;
+	float percent_behind_ball = 0;
+	float percent_defensive_half = 0;
+	float percent_defensive_third = 0;
+	float percent_infront_ball = 0;
+	float percent_neutral_third = 0;
+	float percent_offensive_half = 0;
+	float percent_offensive_third = 0;
+	float time_behind_ball = 0;
+	float time_closest_to_ball = 0;
+	float time_defensive_half = 0;
+	float time_defensive_third = 0;
+	float time_farthest_from_ball = 0;
+	float time_infront_ball = 0;
+	float time_most_back = 0;
+	float time_most_forward = 0;
+	float time_neutral_third = 0;
+	float time_offensive_half = 0;
+	float time_offensive_third = 0;
+	float percent_closest_to_ball = 0;
+	float percent_farthest_from_ball = 0;
+	float percent_most_back = 0;
+	float percent_most_forward = 0;
+	float avg_distance_to_mates = 0;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayDetailPositioningStats, avg_distance_to_ball, avg_distance_to_ball_possession,
+                                            avg_distance_to_ball_no_possession, avg_distance_to_mates,
+                                            time_defensive_third, time_neutral_third, time_offensive_third,
+                                            time_defensive_half, time_offensive_half, time_behind_ball,
+                                            time_infront_ball, time_most_back, time_most_forward,
+                                            time_closest_to_ball,
+                                            time_farthest_from_ball, percent_defensive_third, percent_offensive_third,
+                                            percent_neutral_third, percent_defensive_half, percent_offensive_half,
+                                            percent_behind_ball, percent_infront_ball, percent_most_back,
+                                            percent_most_forward, percent_closest_to_ball, percent_farthest_from_ball);
+
+struct ReplayDetailStats
+{
+	CoreStats core;
+	BoostStats boost;
+	MovementStats movement;
+	DemoStats demo;
+	ReplayDetailPositioningStats positioning;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayDetailStats, core, boost, movement, positioning, demo);
+
+struct ReplayDetail
+{
+	struct Team
+	{
+		struct Player
+		{
+			CameraSettings camera;
+			int car_id = 0;
+			std::string car_name;
+			float end_time = 0;
+			PlayerId id;
+			bool mvp = false;
+			std::string name;
+			float start_time = 0;
+			Rank rank;
+			ReplayDetailStats stats;
+			float steering_sensitivity;
+		};
+		std::string color;
+		int goals = 0;
+		std::string name;
+		std::vector<Player> players;
+	};
+	Team blue;
+	Team orange;
+	std::string created;
+	std::string date;
+	bool date_has_tz = false;
+	int duration = 0;
+	std::string id;
+	std::string link;
+	std::string map_code;
+	std::string map_name;
+	std::string match_guid;
+	std::string match_type;
+	Rank max_rank;
+	Rank min_rank;
+	bool overtime = false;
+	std::string playlist_id;
+	std::string playlist_name;
+	std::string replay_title;
+	std::string rocket_league_id;
+	int season = 0;
+	std::string season_type;
+	std::string status;
+	int team_size = 0;
+	std::string title;
+	BallchasingUser uploader;
+	std::string visibility;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayDetail::Team::Player, camera, car_id, car_name, end_time, id, mvp, name, rank, start_time, stats, steering_sensitivity)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayDetail::Team, color, name, players);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(ReplayDetail, blue, orange, created, date, date_has_tz, id, link,
+                                            map_code, map_name, match_guid, match_type, max_rank, min_rank,
+                                            playlist_id, playlist_name, replay_title, rocket_league_id, season_type,
+                                            status, team_size, title, uploader, visibility)
 
 struct GroupList
 {
@@ -580,7 +692,7 @@ struct GroupList
 
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupList::GroupData, created, direct_replays, id, indirect_replays,
-	link, name, player_identification, shared, team_identification, user);
+                                            link, name, player_identification, shared, team_identification, user);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupList, list)
 
 struct GroupPlayerStatsCumulative
@@ -628,11 +740,11 @@ struct GroupTeamStatsGameAverage
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupPlayerStatsCumulative, core, boost, movement, positioning, demo, games,
-	wins, win_percentage, play_duration);
+                                            wins, win_percentage, play_duration);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupPlayerStatsGameAverage, core, boost, movement, positioning, demo);
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupTeamStatsCumulative, core, boost, movement, positioning, demo, games,
-	wins, win_percentage, play_duration);
+                                            wins, win_percentage, play_duration);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupTeamStatsGameAverage, core, boost, movement, positioning, demo);
 
 struct GroupDetail
@@ -682,4 +794,4 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupDetail::Player, name, id, platf
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupDetail::Team::Player, name, id, platform, team)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupDetail::Team, name, players, cumulative, game_average)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_OPTIONAL(GroupDetail, created, creator, id, link, name, player_identification,
-	players, shared, status, team_identification, teams)
+                                            players, shared, status, team_identification, teams)

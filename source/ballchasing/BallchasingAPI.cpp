@@ -116,6 +116,7 @@ void BallchasingAPI::GetLastMatches() const
 		{
 			DefaultOnError(0, "Failed writing debug file for last_replays");
 		}
+		GetReplayDetails(data.list[0].id);
 		//OnGotReplayList(data.list, "LATEST");
 	};
 	const JsonRequest<ReplayList> json_req{
@@ -124,17 +125,17 @@ void BallchasingAPI::GetLastMatches() const
 	RequestJson(json_req);
 }
 
-void BallchasingAPI::GetReplayDetails(const std::string_view id)
+void BallchasingAPI::GetReplayDetails(const std::string_view id) const
 {
-	auto on_done = [this, id](const json& j, const ReplayData& data)
+	auto on_done = [this, id](const json& j, const ReplayDetail& data)
 	{
 		if (!WriteJsonAndParsedToDebugFile(j, data, fmt::format("replay_details_{}", id)))
 		{
 			DefaultOnError(0, fmt::format("Failed writing debug file for replay_details_{}", id));
 		}
-		OnReplayDetailsSuccess(data);
+		//OnReplayDetailsSuccess(data);
 	};
-	const JsonRequest<ReplayData> json_request
+	const JsonRequest<ReplayDetail> json_request
 	{
 		 GetRequestBase(fmt::format("api/replays/{}",  id), "GET"),
 		on_done
